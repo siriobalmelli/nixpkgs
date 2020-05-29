@@ -1,6 +1,6 @@
 { stdenv, fetchFromGitHub, cmake, gettext, msgpack, libtermkey, libiconv
 , libuv, lua, ncurses, pkgconfig
-, unibilium, xsel, gperf
+, tree-sitter, unibilium, xsel, gperf
 , libvterm-neovim
 , glibcLocales ? null, procps ? null
 
@@ -31,13 +31,13 @@ let
 in
   stdenv.mkDerivation rec {
     pname = "neovim-unwrapped";
-    version = "0.4.4";
+    version = "0.5.0-dev+929-gfaa47eaff";
 
     src = fetchFromGitHub {
       owner = "neovim";
       repo = "neovim";
-      rev = "v${version}";
-      sha256 = "11zyj6jvkwas3n6w1ckj3pk6jf81z1g7ngg4smmwm7c27y2a6f2m";
+      rev = "faa47eafffe35ddfdee44d341d7dc06e97377b28";
+      sha256 = "19jn38fc38b2bkavc0l80c19dmql79iv61wyyh4c15c4wx7rvvmd";
     };
 
     patches = [
@@ -59,6 +59,7 @@ in
       msgpack
       ncurses
       neovimLuaEnv
+      tree-sitter
       unibilium
     ] ++ optional stdenv.isDarwin libiconv
       ++ optionals doCheck [ glibcLocales procps ]
@@ -105,7 +106,10 @@ in
     # triggers on buffer overflow bug while running tests
     hardeningDisable = [ "fortify" ];
 
-    preConfigure = stdenv.lib.optionalString stdenv.isDarwin ''
+    preConfigure = ''
+      mkdir -p $out/share/applications
+      touch $out/share/applications/nvim.desktop
+    '' + stdenv.lib.optionalString stdenv.isDarwin ''
       substituteInPlace src/nvim/CMakeLists.txt --replace "    util" ""
     '';
 
