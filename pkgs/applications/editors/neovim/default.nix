@@ -23,13 +23,13 @@ let
 in
   stdenv.mkDerivation rec {
     pname = "neovim-unwrapped";
-    version = "0.4.3";
+    version = "v0.5.0-621-g4ed5204bc";
 
     src = fetchFromGitHub {
       owner = "neovim";
       repo = "neovim";
       rev = "v${version}";
-      sha256 = "03p7pic7hw9yxxv7fbgls1f42apx3lik2k6mpaz1a109ngyc5kaj";
+      sha256 = "0cainyqcar7y2y4xaxps3wmpih10d4i2pk5yiwds64qp63nb34i0";
     };
 
     patches = [
@@ -99,7 +99,10 @@ in
     # triggers on buffer overflow bug while running tests
     hardeningDisable = [ "fortify" ];
 
-    preConfigure = stdenv.lib.optionalString stdenv.isDarwin ''
+    preConfigure = ''
+      mkdir -p $out/share/applications
+      touch $out/share/applications/nvim.desktop
+    '' + stdenv.lib.optionalString stdenv.isDarwin ''
       substituteInPlace src/nvim/CMakeLists.txt --replace "    util" ""
     '';
 
