@@ -1,6 +1,6 @@
-{ stdenv, python37Packages, fetchFromGitHub }:
+{ stdenv, python3Packages, fetchFromGitHub }:
 
-with python37Packages; buildPythonApplication rec {
+with python3Packages; buildPythonApplication rec {
   pname = "nrfutil";
   version = "6.1";
 
