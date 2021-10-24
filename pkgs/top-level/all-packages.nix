@@ -29537,7 +29537,13 @@ with pkgs;
 
   lightwalletd = callPackage ../applications/blockchains/lightwalletd { };
 
-  openethereum = callPackage ../applications/blockchains/openethereum { };
+  rust_1_52 = callPackage ../development/compilers/rust/1_52.nix {
+    inherit (darwin.apple_sdk.frameworks) CoreFoundation Security SystemConfiguration;
+    llvm_12 = llvmPackages_12.libllvm;
+  };
+  openethereum = callPackage ../applications/blockchains/openethereum {
+    rustPlatform = rust_1_52.packages.stable.rustPlatform;
+  };
 
   parity-ui = callPackage ../applications/blockchains/parity-ui { };
 
