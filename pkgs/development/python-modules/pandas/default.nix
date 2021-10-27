@@ -3,7 +3,6 @@
 , buildPythonPackage
 , fetchPypi
 , python
-, isPy38
 , beautifulsoup4
 , bottleneck
 , cython
@@ -33,11 +32,11 @@
 
 buildPythonPackage rec {
   pname = "pandas";
-  version = "1.3.2";
+  version = "1.3.4";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "cbcb84d63867af3411fa063af3de64902665bb5b3d40b25b2059e40603594e87";
+    sha256 = "1z3gm521wpm3j13rwhlb4f2x0645zvxkgxij37i3imdpy39iiam2";
   };
 
   nativeBuildInputs = [ cython ];
