@@ -5335,6 +5335,8 @@ with pkgs;
 
   uni2ascii = callPackage ../tools/text/uni2ascii { };
 
+  uniscribe = callPackage ../tools/text/uniscribe { };
+
   galculator = callPackage ../applications/misc/galculator {
     gtk = gtk3;
   };
@@ -26376,6 +26378,10 @@ with pkgs;
 
   mda_lv2 = callPackage ../applications/audio/mda-lv2 { };
 
+  mdzk = callPackage ../applications/misc/mdzk {
+    inherit (darwin.apple_sdk.frameworks) CoreServices;
+  };
+
   mediaelch = libsForQt5.callPackage ../applications/misc/mediaelch { };
 
   mediainfo = callPackage ../applications/misc/mediainfo { };
@@ -29346,6 +29352,7 @@ with pkgs;
   };
 
   bitcoind = callPackage ../applications/blockchains/bitcoin {
+    boost = boost17x;
     miniupnpc = miniupnpc_2;
     withGui = false;
   };
@@ -29531,7 +29538,13 @@ with pkgs;
 
   lightwalletd = callPackage ../applications/blockchains/lightwalletd { };
 
-  openethereum = callPackage ../applications/blockchains/openethereum { };
+  rust_1_52 = callPackage ../development/compilers/rust/1_52.nix {
+    inherit (darwin.apple_sdk.frameworks) CoreFoundation Security SystemConfiguration;
+    llvm_12 = llvmPackages_12.libllvm;
+  };
+  openethereum = callPackage ../applications/blockchains/openethereum {
+    rustPlatform = rust_1_52.packages.stable.rustPlatform;
+  };
 
   parity-ui = callPackage ../applications/blockchains/parity-ui { };
 
@@ -32846,7 +32859,7 @@ with pkgs;
 
   vault-bin = callPackage ../tools/security/vault/vault-bin.nix { };
 
-  vaultenv = haskellPackages.vaultenv;
+  vaultenv = haskell.lib.justStaticExecutables haskellPackages.vaultenv;
 
   vazir-code-font = callPackage ../data/fonts/vazir-code-font { };
 

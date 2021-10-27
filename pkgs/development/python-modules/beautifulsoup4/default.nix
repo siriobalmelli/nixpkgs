@@ -31,6 +31,10 @@ buildPythonPackage rec {
 
   pythonImportsCheck = [ "bs4" ];
 
+  checkPhase = ''
+    pytest -k 'not test_real_hebrew_document and not test_smart_quotes_converted_on_the_way_in and not test_can_parse_unicode_document'
+  '';
+
   meta = with lib; {
     homepage = "http://crummy.com/software/BeautifulSoup/bs4/";
     description = "HTML and XML parser";
