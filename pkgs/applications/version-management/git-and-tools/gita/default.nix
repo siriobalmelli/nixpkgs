@@ -9,12 +9,12 @@
 }:
 
 buildPythonApplication rec {
-  version = "0.11.9";
+  version = "0.15.9";
   pname = "gita";
 
   src = fetchFromGitHub {
-    sha256 = "9+zuLAx9lMfltsBqjvsivJ5wPnStPfq11XgGMv/JDpY=";
-    rev = version;
+    sha256 = "1c7pbwnrn11zimh3z78insam7dzvkzx6g0ca04cmk5gzz9m6bn30";
+    rev = "v${version}";
     repo = "gita";
     owner = "nosarthur";
   };
@@ -40,7 +40,7 @@ buildPythonApplication rec {
 
   checkPhase = ''
     git init
-    pytest tests
+    pytest -k "not test_integration" tests
   '';
 
   postInstall = ''
