@@ -1089,6 +1089,8 @@ in {
 
   beancount_docverif = callPackage ../development/python-modules/beancount_docverif { };
 
+  beancount_payeeverif = callPackage ../development/python-modules/beancount_payeeverif { };
+
   beanstalkc = callPackage ../development/python-modules/beanstalkc { };
 
   beautifulsoup4 = callPackage ../development/python-modules/beautifulsoup4 { };
