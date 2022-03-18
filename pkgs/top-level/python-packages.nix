@@ -1219,6 +1219,8 @@ in {
 
   beancount_docverif = callPackage ../development/python-modules/beancount_docverif { };
 
+  beancount_payeeverif = callPackage ../development/python-modules/beancount_payeeverif { };
+
   beanstalkc = callPackage ../development/python-modules/beanstalkc { };
 
   beartype = callPackage ../development/python-modules/beartype { };
