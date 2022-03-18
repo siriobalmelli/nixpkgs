@@ -1474,6 +1474,7 @@ self: super: with self; {
   beanhub-forms = callPackage ../development/python-modules/beanhub-forms { };
 
   beanhub-import = callPackage ../development/python-modules/beanhub-import { };
+  beancount_payeeverif = callPackage ../development/python-modules/beancount_payeeverif { };
 
   beanstalkc = callPackage ../development/python-modules/beanstalkc { };
 
