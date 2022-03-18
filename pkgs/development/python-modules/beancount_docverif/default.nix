@@ -5,14 +5,14 @@
 }:
 
 buildPythonPackage rec {
-  version = "1.0.0";
+  version = "1.0.1";
   pname = "beancount_docverif";
 
   disabled = !isPy3k;
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "1kjc0axrxpvm828lqq5m2ikq0ls8xksbmm7312zw867gdx56x5aj";
+    sha256 = "1s0w72xq78isxxwlvg356vdvicxnmp70zry3sjz97r2gava6yl08";
   };
 
   nativeBuildInputs = [
