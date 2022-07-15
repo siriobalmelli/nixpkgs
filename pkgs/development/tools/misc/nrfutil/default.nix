@@ -16,6 +16,9 @@ buildPythonApplication rec {
     rev = "refs/tags/v${version}";
     sha256 = "sha256-WiXqeQObhXszDcLxJN8ABd2ZkxsOUvtZQSVP8cYlT2M=";
   };
+  patches = [
+    ./requirements.patch  # unpin ancient libusb1 version
+  ];
 
   propagatedBuildInputs = [
     click
