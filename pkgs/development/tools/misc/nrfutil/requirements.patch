@@ -1,0 +1,20 @@
+diff --git a/requirements.txt b/requirements.txt
+index 3514155..3bd52d9 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -3,11 +3,11 @@ click
+ crcmod
+ ecdsa
+ intelhex
+-libusb1==1.9.3
+-pc_ble_driver_py >= 0.16.4
++libusb1
++pc_ble_driver_py
+ piccata
+-protobuf >=3.17.3, < 4.0.0
++protobuf
+ pyserial
+-pyspinel >= 1.0.0a3
++pyspinel
+ pyyaml
+ tqdm
