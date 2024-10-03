@@ -89,7 +89,7 @@ rustPlatform.buildRustPackage rec {
 
   buildFeatures = [ "distro-defaults" ];
 
-  env.NIX_LDFLAGS = lib.optionalString stdenv.hostPlatform.isDarwin "-framework System";
+  env.NIX_LDFLAGS = lib.optionalString stdenv.isDarwin "-U ___darwin_check_fd_set_overflow";
 
   postInstall = ''
     mkdir -p $out/nix-support
