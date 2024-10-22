@@ -108,6 +108,13 @@ python.pkgs.buildPythonApplication rec {
     "test_get_config_dir"
     # https://github.com/borgbackup/borg/issues/6573
     "test_basic_functionality"
+  ] ++ lib.optionals (stdenv.system == "x86_64-darwin") [
+    # xattr-related failures on x86_64-darwin
+    # see https://github.com/borgbackup/borg/issues/204
+    "test_can_read_repo_even_if_nonce_is_deleted"
+    "test_extract_xattrs_resourcefork"
+    "test_overwrite"
+    "test_sparse_file"
   ];
 
   preCheck = ''
