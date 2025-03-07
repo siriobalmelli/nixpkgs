@@ -10,6 +10,7 @@
   surrealdb,
   darwin,
   protobuf,
+  foundationdb,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "surrealdb";
@@ -37,15 +38,25 @@ rustPlatform.buildRustPackage rec {
   ROCKSDB_LIB_DIR = "${rocksdb}/lib";
 
   RUSTFLAGS = "--cfg surrealdb_unstable";
+  cargoBuildFeatures = lib.optionals stdenv.hostPlatform.isLinux [
+    "storage-fdb"
+  ];
 
   nativeBuildInputs = [
     pkg-config
     rustPlatform.bindgenHook
   ];
 
-  buildInputs = [
-    openssl
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ darwin.apple_sdk.frameworks.SystemConfiguration ];
+  buildInputs =
+    [
+      openssl
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      darwin.apple_sdk.frameworks.SystemConfiguration
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isLinux [
+      foundationdb
+    ];
 
   doCheck = false;
 
