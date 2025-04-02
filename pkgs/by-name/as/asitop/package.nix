@@ -1,15 +1,16 @@
 {
   lib,
-  python3,
+
+  python3Packages,
   fetchPypi,
 }:
 
-python3.pkgs.buildPythonApplication rec {
+python3Packages.buildPythonApplication rec {
   pname = "asitop";
   version = "0.0.24";
   format = "setuptools";
 
-  disabled = python3.pythonOlder "3.7";
+  disabled = python3Packages.pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
@@ -19,7 +20,7 @@ python3.pkgs.buildPythonApplication rec {
   # has no tests
   doCheck = false;
 
-  propagatedBuildInputs = with python3.pkgs; [
+  propagatedBuildInputs = with python3Packages; [
     dashing
     psutil
   ];
