@@ -517,6 +517,7 @@ in
     inherit runTest;
     forgejoPackage = pkgs.forgejo-lts;
   };
+  foundationdb = runTest ./foundationdb.nix { };
   freenet = runTest ./freenet.nix;
   freeswitch = handleTest ./freeswitch.nix { };
   freetube = discoverTests (import ./freetube.nix);
