@@ -13,7 +13,7 @@
   toml11,
   jemalloc,
   doctest,
-
+  zlib,
   gccStdenv,
   llvmPackages,
   useClang ? false,
@@ -58,6 +58,7 @@ let
         msgpack-cxx
         toml11
         jemalloc
+        zlib
       ];
 
       checkInputs = [ doctest ];
@@ -161,14 +162,14 @@ let
         "pythonsrc"
       ];
 
-      meta = with lib; {
+      meta = {
         description = "Open source, distributed, transactional key-value store";
         homepage = "https://www.foundationdb.org";
-        license = licenses.asl20;
-        platforms = [ "x86_64-linux" ] ++ lib.optionals (!(avxEnabled version)) [ "aarch64-linux" ];
+        lib.license = lib.licenses.asl20;
+        lib.platforms = [ "x86_64-linux" ] ++ lib.optionals (!(avxEnabled version)) [ "aarch64-linux" ];
         # Fails when cross-compiling with "/bin/sh: gcc-ar: not found"
         broken = stdenv.buildPlatform != stdenv.hostPlatform;
-        maintainers = with maintainers; [
+        maintainers = with lib.maintainers; [
           thoughtpolice
           lostnet
         ];
