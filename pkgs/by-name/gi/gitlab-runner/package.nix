@@ -10,19 +10,19 @@
 
 buildGoModule (finalAttrs: {
   pname = "gitlab-runner";
-  version = "17.2.0";
+  version = "17.11.0";
 
   src = fetchFromGitLab {
     owner = "gitlab-org";
     repo = "gitlab-runner";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-a2Igy4DS3fYTvPW1vvDrH/DjMQ4lG9cm/P3mFr+y9s4=";
+    hash = "sha256-Jppy8IG0Oq95RDDkvN1FpXjJuSc3DkfhGgnfpaUSKa4=";
   };
 
-  vendorHash = "sha256-1MwHss76apA9KoFhEU6lYiUACrPMGYzjhds6nTyNuJI=";
+  vendorHash = "sha256-wxFVDkqiqs7jaZEPGyawWfs6h6UgAhCWSckM90G44lA=";
 
   # For patchShebangs
-  nativeBuildInputs = [ bash ];
+  buildInputs = [ bash ];
 
   patches = [
     ./fix-shell-path.patch
@@ -33,32 +33,47 @@ buildGoModule (finalAttrs: {
     ''
       # Remove some tests that can't work during a nix build
 
-      # Requires to run in a git repo
-      sed -i "s/func TestCacheArchiverAddingUntrackedFiles/func OFF_TestCacheArchiverAddingUntrackedFiles/" commands/helpers/file_archiver_test.go
-      sed -i "s/func TestCacheArchiverAddingUntrackedUnicodeFiles/func OFF_TestCacheArchiverAddingUntrackedUnicodeFiles/" commands/helpers/file_archiver_test.go
+      # Needs the build directory to be a git repo
+      substituteInPlace commands/helpers/file_archiver_test.go \
+        --replace-fail "func TestCacheArchiverAddingUntrackedFiles" "func OFF_TestCacheArchiverAddingUntrackedFiles" \
+        --replace-fail "func TestCacheArchiverAddingUntrackedUnicodeFiles" "func OFF_TestCacheArchiverAddingUntrackedUnicodeFiles"
+      rm shells/abstract_test.go
 
       # No writable developer environment
-      rm common/build_test.go
       rm common/build_settings_test.go
+      rm common/build_test.go
       rm executors/custom/custom_test.go
 
-      # No docker during build
-      rm executors/docker/terminal_test.go
+      # No Docker during build
       rm executors/docker/docker_test.go
-      rm helpers/docker/auth/auth_test.go
       rm executors/docker/services_test.go
+      rm executors/docker/terminal_test.go
+      rm helpers/docker/auth/auth_test.go
+
+      # No Kubernetes during build
+      rm executors/kubernetes/feature_test.go
+      rm executors/kubernetes/kubernetes_test.go
+      rm executors/kubernetes/overwrites_test.go
     ''
     + lib.optionalString stdenv.buildPlatform.isDarwin ''
+      # Invalid bind arguments break Unix socket tests
+      substituteInPlace commands/wrapper_test.go \
+        --replace-fail "func TestRunnerWrapperCommand_createListener" "func OFF_TestRunnerWrapperCommand_createListener"
+
       # No keychain access during build breaks X.509 certificate tests
-      rm helpers/certificate/x509_test.go
-      rm network/client_test.go
+      substituteInPlace helpers/certificate/x509_test.go \
+        --replace-fail "func TestCertificate" "func OFF_TestCertificate"
+      substituteInPlace network/client_test.go \
+        --replace-fail "func TestClientInvalidSSL" "func OFF_TestClientInvalidSSL"
     '';
 
   excludedPackages = [
-    # CI helper script for pushing images to Docker and ECR registries
+    # Nested dependency Go module, used with go.mod replace directive
     #
-    # https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/4139
-    "./scripts/sync-docker-images"
+    # https://gitlab.com/gitlab-org/gitlab-runner/-/commit/57ea9df5d8a8deb78c8d1972930bbeaa80d05e78
+    "./helpers/runner_wrapper/api"
+    # Helper scripts for upstream Make targets, not intended for downstream consumers
+    "./scripts"
   ];
 
   ldflags =
@@ -68,7 +83,7 @@ buildGoModule (finalAttrs: {
     [
       "-X ${ldflagsPackageVariablePrefix}.NAME=gitlab-runner"
       "-X ${ldflagsPackageVariablePrefix}.VERSION=${finalAttrs.version}"
-      "-X ${ldflagsPackageVariablePrefix}.REVISION=${finalAttrs.src.tag}"
+      "-X ${ldflagsPackageVariablePrefix}.REVISION=v${finalAttrs.version}"
     ];
 
   preCheck = ''
@@ -98,6 +113,7 @@ buildGoModule (finalAttrs: {
     homepage = "https://docs.gitlab.com/runner";
     license = lib.licenses.mit;
     mainProgram = "gitlab-runner";
-    maintainers = with lib.maintainers; [ zimbatm ] ++ lib.teams.gitlab.members;
+    maintainers = with lib.maintainers; [ zimbatm ];
+    teams = [ lib.teams.gitlab ];
   };
 })

@@ -13,14 +13,14 @@
 
 python3Packages.buildPythonPackage rec {
   pname = "boxflat";
-  version = "1.28.5";
+  version = "1.32.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "Lawstorant";
     repo = "boxflat";
     tag = "v${version}";
-    hash = "sha256-YwszXAm0B1FuLfa9EKNoh0cXXxj82CXY5q8ot1G184M=";
+    hash = "sha256-zxaBz2ooo+h3a9svtC+j23EhpH8TTQIxjdRDCnhAvJ4=";
   };
 
   build-system = [ python3Packages.setuptools ];

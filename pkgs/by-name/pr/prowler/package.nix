@@ -21,14 +21,14 @@ let
 in
 py.pkgs.buildPythonApplication rec {
   pname = "prowler";
-  version = "5.4.3";
+  version = "5.7.4";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "prowler-cloud";
     repo = "prowler";
     tag = version;
-    hash = "sha256-Rg1r1G1INmDK5bN4NIrs51CTnxNiwOOSoTFC3AlEUoI=";
+    hash = "sha256-SC3C8JSe0n8aHwP8gelh+tDrLO6HiGN+7/Rcxhwr6Ec=";
   };
 
   pythonRelaxDeps = true;
@@ -75,6 +75,7 @@ py.pkgs.buildPythonApplication rec {
     pandas
     py-ocsf-models
     pydantic_1
+    pygithub
     python-dateutil
     pytz
     schema

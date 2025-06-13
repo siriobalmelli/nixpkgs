@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import textwrap
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from importlib.resources import files
@@ -9,7 +10,6 @@ from pathlib import Path
 from string import Template
 from subprocess import PIPE, CalledProcessError
 from typing import Final, Literal
-from uuid import uuid4
 
 from . import tmpdir
 from .constants import WITH_NIX_2_18
@@ -29,13 +29,29 @@ from .utils import Args, dict_to_flags
 
 FLAKE_FLAGS: Final = ["--extra-experimental-features", "nix-command flakes"]
 FLAKE_REPL_TEMPLATE: Final = "repl.nix.template"
-logger = logging.getLogger(__name__)
+SWITCH_TO_CONFIGURATION_CMD_PREFIX: Final = [
+    "systemd-run",
+    "-E",
+    # Will be set to new value early in switch-to-configuration script,
+    # but interpreter starts out with old value
+    "LOCALE_ARCHIVE",
+    "-E",
+    "NIXOS_INSTALL_BOOTLOADER",
+    "--collect",
+    "--no-ask-password",
+    "--pipe",
+    "--quiet",
+    "--service-type=exec",
+    "--unit=nixos-rebuild-switch-to-configuration",
+]
+logger: Final = logging.getLogger(__name__)
 
 
 def build(
     attr: str,
     build_attr: BuildAttr,
     build_flags: Args | None = None,
+    quiet: bool = False,
 ) -> Path:
     """Build NixOS attribute using classic Nix.
 
@@ -48,7 +64,7 @@ def build(
         build_attr.to_attr(attr),
         *dict_to_flags(build_flags),
     ]
-    r = run_wrapper(run_args, stdout=PIPE)
+    r = run_wrapper(run_args, stdout=PIPE, stderr=PIPE if quiet else None)
     return Path(r.stdout.strip())
 
 
@@ -56,6 +72,7 @@ def build_flake(
     attr: str,
     flake: Flake,
     flake_build_flags: Args | None = None,
+    quiet: bool = False,
 ) -> Path:
     """Build NixOS attribute using Flakes.
 
@@ -69,7 +86,7 @@ def build_flake(
         flake.to_attr(attr),
         *dict_to_flags(flake_build_flags),
     ]
-    r = run_wrapper(run_args, stdout=PIPE)
+    r = run_wrapper(run_args, stdout=PIPE, stderr=PIPE if quiet else None)
     return Path(r.stdout.strip())
 
 
@@ -91,7 +108,7 @@ def build_remote(
             "--attr",
             build_attr.to_attr(attr),
             "--add-root",
-            tmpdir.TMPDIR_PATH / uuid4().hex,
+            tmpdir.TMPDIR_PATH / uuid.uuid4().hex,
             *dict_to_flags(instantiate_flags),
         ],
         stdout=PIPE,
@@ -111,7 +128,7 @@ def build_remote(
                 "--realise",
                 drv,
                 "--add-root",
-                remote_tmpdir / uuid4().hex,
+                remote_tmpdir / uuid.uuid4().hex,
                 *dict_to_flags(realise_flags),
             ],
             remote=build_host,
@@ -628,8 +645,21 @@ def switch_to_configuration(
         if not path_to_config.exists():
             raise NRError(f"specialisation not found: {specialisation}")
 
+    r = run_wrapper(
+        ["test", "-d", "/run/systemd/system"],
+        remote=target_host,
+        check=False,
+    )
+    cmd = SWITCH_TO_CONFIGURATION_CMD_PREFIX
+    if r.returncode:
+        logger.debug(
+            "skipping systemd-run to switch configuration since systemd is "
+            + "not working in target host"
+        )
+        cmd = []
+
     run_wrapper(
-        [path_to_config / "bin/switch-to-configuration", str(action)],
+        [*cmd, path_to_config / "bin/switch-to-configuration", str(action)],
         extra_env={"NIXOS_INSTALL_BOOTLOADER": "1" if install_bootloader else "0"},
         remote=target_host,
         sudo=sudo,

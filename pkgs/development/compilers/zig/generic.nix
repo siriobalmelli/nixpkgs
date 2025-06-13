@@ -7,6 +7,7 @@
   xcbuild,
   targetPackages,
   libxml2,
+  ninja,
   zlib,
   coreutils,
   callPackage,
@@ -35,6 +36,7 @@ stdenv.mkDerivation (finalAttrs: {
     [
       cmake
       (lib.getDev llvmPackages.llvm.dev)
+      ninja
     ]
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
       # provides xcode-select, which is required for SDK detection
@@ -66,9 +68,7 @@ stdenv.mkDerivation (finalAttrs: {
     "doc"
   ];
 
-  # strictDeps breaks zig when clang is being used.
-  # https://github.com/NixOS/nixpkgs/issues/317055#issuecomment-2148438395
-  strictDeps = !stdenv.cc.isClang;
+  strictDeps = true;
 
   # On Darwin, Zig calls std.zig.system.darwin.macos.detect during the build,
   # which parses /System/Library/CoreServices/SystemVersion.plist and
@@ -77,7 +77,6 @@ stdenv.mkDerivation (finalAttrs: {
   # OSVersionDetectionFail when the sandbox is enabled.
   __impureHostDeps = lib.optionals stdenv.hostPlatform.isDarwin [
     "/System/Library/CoreServices/.SystemVersionPlatform.plist"
-    "/System/Library/CoreServices/SystemVersion.plist"
   ];
 
   preBuild = ''
@@ -153,10 +152,11 @@ stdenv.mkDerivation (finalAttrs: {
     cc = wrapCCWith {
       cc = finalAttrs.finalPackage.cc-unwrapped;
       bintools = finalAttrs.finalPackage.bintools;
+      extraPackages = [ ];
       nixSupport.cc-cflags =
         [
           "-target"
-          "${stdenv.targetPlatform.parsed.cpu.name}-${stdenv.targetPlatform.parsed.kernel.name}-${stdenv.targetPlatform.parsed.abi.name}"
+          "${stdenv.targetPlatform.system}-${stdenv.targetPlatform.parsed.abi.name}"
         ]
         ++ lib.optional (
           stdenv.targetPlatform.isLinux && !(stdenv.targetPlatform.isStatic or false)
@@ -171,10 +171,9 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://ziglang.org/";
     changelog = "https://ziglang.org/download/${finalAttrs.version}/release-notes.html";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ andrewrk ] ++ lib.teams.zig.members;
+    maintainers = with lib.maintainers; [ andrewrk ];
+    teams = [ lib.teams.zig ];
     mainProgram = "zig";
-    # docgen fails to build
-    broken = version == "0.11.0";
     platforms = lib.platforms.unix;
   };
 })

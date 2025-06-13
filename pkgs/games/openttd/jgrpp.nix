@@ -7,13 +7,13 @@
 
 openttd.overrideAttrs (oldAttrs: rec {
   pname = "openttd-jgrpp";
-  version = "0.64.2";
+  version = "0.65.3";
 
   src = fetchFromGitHub {
     owner = "JGRennison";
     repo = "OpenTTD-patches";
     rev = "jgrpp-${version}";
-    hash = "sha256-xZuby/brO7JX937w/jK+/bKTJHt2SK1GaG9bM6XqeiU=";
+    hash = "sha256-lmDkYrk7qjUSTtCQQCN/pbuLDt3+2RI1K8A1H1GJRjw=";
   };
   patches = [ ];
 

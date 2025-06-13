@@ -5,6 +5,7 @@
   fetchFromGitHub,
 
   # build-system
+  setuptools,
   cython,
   versioneer,
 
@@ -32,17 +33,21 @@
 
 buildPythonPackage rec {
   pname = "pytensor";
-  version = "2.30.2";
+  version = "2.31.3";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "pymc-devs";
     repo = "pytensor";
     tag = "rel-${version}";
-    hash = "sha256-l9/N6DFR8qTF4BiH+g6H32r0FkpL9Pjtn/xkiFYYJhU=";
+    postFetch = ''
+      sed -i 's/git_refnames = "[^"]*"/git_refnames = " (tag: ${src.tag})"/' $out/pytensor/_version.py
+    '';
+    hash = "sha256-tvK8UzJZvX9X2NKgqkyhi0ZzAb38Lu0ULze4L1Z3YfU=";
   };
 
   build-system = [
+    setuptools
     cython
     versioneer
   ];
@@ -128,6 +133,7 @@ buildPythonPackage rec {
     "test_scan_err1"
     "test_scan_err2"
     "test_shared"
+    "test_size_implied_by_broadcasted_parameters"
     "test_solve_triangular_grad"
     "test_structured_add_s_v_grad"
     "test_structureddot_csc_grad"

@@ -14,7 +14,7 @@
   libxslt,
   libxcrypt,
   pkg-config,
-  glibcCross ? null,
+  glibc ? null,
   pam ? null,
   withLibbsd ? lib.meta.availableOn stdenv.hostPlatform libbsd,
   libbsd,
@@ -22,9 +22,9 @@
   tcb,
 }:
 let
-  glibc =
+  glibc' =
     if stdenv.hostPlatform != stdenv.buildPlatform then
-      glibcCross
+      glibc
     else
       assert stdenv.hostPlatform.libc == "glibc";
       stdenv.cc.libc;
@@ -33,13 +33,13 @@ in
 
 stdenv.mkDerivation rec {
   pname = "shadow";
-  version = "4.17.2";
+  version = "4.17.4";
 
   src = fetchFromGitHub {
     owner = "shadow-maint";
     repo = "shadow";
     rev = version;
-    hash = "sha256-IoHAr35ziujHTukMbA5QN15YbnpwBT7pUYcqRr+rdog=";
+    hash = "sha256-HlSO1VCrMJtYlSL9/GvVw4mp/pEtuDju6V+6etrAAEk=";
   };
 
   outputs = [
@@ -100,7 +100,7 @@ stdenv.mkDerivation rec {
     ++ lib.optional withTcb "--with-tcb";
 
   preBuild = lib.optionalString (stdenv.hostPlatform.libc == "glibc") ''
-    substituteInPlace lib/nscd.c --replace /usr/sbin/nscd ${glibc.bin}/bin/nscd
+    substituteInPlace lib/nscd.c --replace /usr/sbin/nscd ${glibc'.bin}/bin/nscd
   '';
 
   postInstall = ''

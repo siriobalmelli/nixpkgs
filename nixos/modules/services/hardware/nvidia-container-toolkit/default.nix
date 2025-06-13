@@ -50,21 +50,6 @@
           '';
         };
 
-        mounts = lib.mkOption {
-          type = lib.types.listOf (lib.types.submodule mountType);
-          default = [ ];
-          description = "Mounts to be added to every container under the Nvidia CDI profile.";
-        };
-
-        mount-nvidia-executables = lib.mkOption {
-          default = true;
-          type = lib.types.bool;
-          description = ''
-            Mount executables nvidia-smi, nvidia-cuda-mps-control, nvidia-cuda-mps-server,
-            nvidia-debugdump, nvidia-powerd and nvidia-ctk on containers.
-          '';
-        };
-
         device-name-strategy = lib.mkOption {
           default = "index";
           type = lib.types.enum [
@@ -80,12 +65,57 @@
           '';
         };
 
+        discovery-mode = lib.mkOption {
+          default = "auto";
+          type = lib.types.enum [
+            "auto"
+            "csv"
+            "nvml"
+            "wsl"
+          ];
+          description = ''
+            The mode to use when discovering the available entities.
+          '';
+        };
+
+        csv-files = lib.mkOption {
+          default = [ ];
+          type = lib.types.listOf lib.types.path;
+          description = ''
+            The path to the list of CSV files to use when generating the CDI specification in CSV mode.
+          '';
+        };
+
+        mounts = lib.mkOption {
+          type = lib.types.listOf (lib.types.submodule mountType);
+          default = [ ];
+          description = "Mounts to be added to every container under the Nvidia CDI profile.";
+        };
+
+        mount-nvidia-executables = lib.mkOption {
+          default = true;
+          type = lib.types.bool;
+          description = ''
+            Mount executables nvidia-smi, nvidia-cuda-mps-control, nvidia-cuda-mps-server,
+            nvidia-debugdump, nvidia-powerd and nvidia-ctk on containers.
+          '';
+        };
+
         mount-nvidia-docker-1-directories = lib.mkOption {
           default = true;
           type = lib.types.bool;
           description = ''
             Mount nvidia-docker-1 directories on containers: /usr/local/nvidia/lib and
             /usr/local/nvidia/lib64.
+          '';
+        };
+
+        suppressNvidiaDriverAssertion = lib.mkOption {
+          default = false;
+          type = lib.types.bool;
+          description = ''
+            Suppress the assertion for installing Nvidia driver.
+            Useful in WSL where drivers are mounted from Windows, not provided by NixOS.
           '';
         };
 
@@ -98,8 +128,16 @@
     assertions = [
       {
         assertion =
-          config.hardware.nvidia.datacenter.enable || lib.elem "nvidia" config.services.xserver.videoDrivers;
-        message = ''`nvidia-container-toolkit` requires nvidia datacenter or desktop drivers: set `hardware.nvidia.datacenter.enable` or add "nvidia" to `services.xserver.videoDrivers`'';
+          config.hardware.nvidia.datacenter.enable
+          || lib.elem "nvidia" config.services.xserver.videoDrivers
+          || config.hardware.nvidia-container-toolkit.suppressNvidiaDriverAssertion;
+        message = ''`nvidia-container-toolkit` requires nvidia drivers: set `hardware.nvidia.datacenter.enable`, add "nvidia" to `services.xserver.videoDrivers`, or set `hardware.nvidia-container-toolkit.suppressNvidiaDriverAssertion` if the driver is provided by another NixOS module (e.g. from NixOS-WSL)'';
+      }
+      {
+        assertion =
+          ((builtins.length config.hardware.nvidia-container-toolkit.csv-files) > 0)
+          -> config.hardware.nvidia-container-toolkit.discovery-mode == "csv";
+        message = ''When CSV files are provided, `config.hardware.nvidia-container-toolkit.discovery-mode` has to be set to `csv`.'';
       }
     ];
 
@@ -198,10 +236,14 @@
         ExecStart =
           let
             script = pkgs.callPackage ./cdi-generate.nix {
-              inherit (config.hardware.nvidia-container-toolkit) mounts;
+              inherit (config.hardware.nvidia-container-toolkit)
+                csv-files
+                device-name-strategy
+                discovery-mode
+                mounts
+                ;
               nvidia-container-toolkit = config.hardware.nvidia-container-toolkit.package;
               nvidia-driver = config.hardware.nvidia.package;
-              deviceNameStrategy = config.hardware.nvidia-container-toolkit.device-name-strategy;
             };
           in
           lib.getExe script;

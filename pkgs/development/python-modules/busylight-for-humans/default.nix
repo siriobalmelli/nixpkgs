@@ -16,7 +16,7 @@
 
 buildPythonPackage rec {
   pname = "busylight-for-humans";
-  version = "0.33.3";
+  version = "0.35.2";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -24,7 +24,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "JnyJny";
     repo = "busylight";
-    tag = version;
+    tag = "v${version}";
     hash = "sha256-0jmaVMN4wwqoO5wGMaV4kJefNUPOuJpWbsqHcZZ0Nh4=";
   };
 
@@ -58,7 +58,7 @@ buildPythonPackage rec {
     homepage = "https://github.com/JnyJny/busylight";
     changelog = "https://github.com/JnyJny/busylight/releases/tag/${version}";
     license = licenses.asl20;
-    maintainers = teams.helsinki-systems.members;
+    teams = [ teams.helsinki-systems ];
     mainProgram = "busylight";
   };
 }

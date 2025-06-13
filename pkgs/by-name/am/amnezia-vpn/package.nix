@@ -2,6 +2,8 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  fetchpatch,
+  fetchurl,
   cmake,
   pkg-config,
   kdePackages,
@@ -51,18 +53,35 @@ let
       vendorHash = "sha256-zArdGj5yeRxU0X4jNgT5YBI9SJUyrANDaqNPAPH3d5M=";
     }
   );
+
+  amneziaPremiumConfig = fetchurl {
+    url = "https://raw.githubusercontent.com/amnezia-vpn/amnezia-client-lite/f45d6b242c1ac635208a72914e8df76ccb3aa44c/macos-signed-build.sh";
+    hash = "sha256-PnaPVPlyglUphhknWwP7ziuwRz+WOz0k9WRw6Q0nG2c=";
+    postFetch = ''
+      sed -nri '/PROD_AGW_PUBLIC_KEY|PROD_S3_ENDPOINT/p' $out
+    '';
+  };
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "amnezia-vpn";
-  version = "4.8.5.0";
+  version = "4.8.6.0";
 
   src = fetchFromGitHub {
     owner = "amnezia-vpn";
     repo = "amnezia-client";
     tag = finalAttrs.version;
-    hash = "sha256-k0BroQYrmJzM0+rSZMf20wHba5NbOK/xm5lbUFBNEHI=";
+    hash = "sha256-WQbay3dtGNPPpcK1O7bfs/HKO4ytfmQo60firU/9o28=";
     fetchSubmodules = true;
   };
+
+  # Temporary patch header file to fix build with QT 6.9
+  patches = [
+    (fetchpatch {
+      name = "add-missing-include.patch";
+      url = "https://github.com/amnezia-vpn/amnezia-client/commit/c44ce0d77cc3acdf1de48a12459a1a821d404a1c.patch";
+      hash = "sha256-Q6UMD8PlKAcI6zNolT5+cULECnxNrYrD7cifvNg1ZrY=";
+    })
+  ];
 
   postPatch =
     ''
@@ -114,6 +133,10 @@ stdenv.mkDerivation (finalAttrs: {
     qt6.qttools
   ];
 
+  preConfigure = ''
+    source ${amneziaPremiumConfig}
+  '';
+
   installPhase = ''
     runHook preInstall
 
@@ -125,11 +148,6 @@ stdenv.mkDerivation (finalAttrs: {
     install -m444 ../deploy/data/linux/AmneziaVPN.service $out/lib/systemd/system/
 
     runHook postInstall
-  '';
-
-  postFixup = ''
-    # Temporary unwrap non-binary executable until qt6.wrapQtAppsHook is fixed
-    mv $out/libexec/.update-resolv-conf.sh-wrapped $out/libexec/update-resolv-conf.sh
   '';
 
   passthru = {

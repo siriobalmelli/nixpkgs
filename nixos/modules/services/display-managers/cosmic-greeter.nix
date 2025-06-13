@@ -16,12 +16,7 @@ let
 in
 
 {
-  meta.maintainers = with lib.maintainers; [
-    thefossguy
-    HeitorAugustoLN
-    nyabinary
-    ahoneybun
-  ];
+  meta.maintainers = lib.teams.cosmic.members;
 
   options.services.displayManager.cosmic-greeter = {
     enable = lib.mkEnableOption "COSMIC greeter";
@@ -38,7 +33,7 @@ in
         };
         initial_session = lib.mkIf (cfgAutoLogin.enable && (cfgAutoLogin.user != null)) {
           user = cfgAutoLogin.user;
-          command = ''${lib.getExe' pkgs.coreutils "env"} XCURSOR_THEME="''${XCURSOR_THEME:-Pop}" systemd-cat -t cosmic-session ${lib.getExe pkgs.cosmic-session}'';
+          command = ''${lib.getExe' pkgs.coreutils "env"} XCURSOR_THEME="''${XCURSOR_THEME:-Pop}" systemd-cat -t cosmic-session ${lib.getExe' pkgs.cosmic-session "start-cosmic"}'';
         };
       };
     };

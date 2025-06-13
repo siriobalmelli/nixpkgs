@@ -95,7 +95,7 @@ stdenv.mkDerivation (
   in
   {
     pname = "neovim-unwrapped";
-    version = "0.11.0";
+    version = "0.11.2";
 
     __structuredAttrs = true;
 
@@ -103,7 +103,7 @@ stdenv.mkDerivation (
       owner = "neovim";
       repo = "neovim";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-UVMRHqyq3AP9sV79EkPUZnVkj0FpbS+XDPPOppp2yFE=";
+      hash = "sha256-sNunEdIFrSMqYaNg0hbrSXALRQXxFkdDOl/hhX1L1WA=";
     };
 
     patches = [
@@ -270,7 +270,7 @@ stdenv.mkDerivation (
         asl20
         vim
       ];
-      maintainers = lib.teams.neovim.members;
+      teams = [ lib.teams.neovim ];
       platforms = lib.platforms.unix;
     };
   }

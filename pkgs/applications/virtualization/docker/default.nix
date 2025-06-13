@@ -86,7 +86,7 @@ rec {
         };
 
         preBuild = ''
-          substituteInPlace Makefile --replace-warn "/bin/bash" "${lib.getExe bash}"
+          substituteInPlace Makefile --replace-warn "/bin/bash" "${stdenv.shell}"
         '';
 
         # docker/runc already include these patches / are not applicable
@@ -404,11 +404,11 @@ rec {
   };
 
   docker_28 = callPackage dockerGen rec {
-    version = "28.0.4";
+    version = "28.2.2";
     cliRev = "v${version}";
-    cliHash = "sha256-DLUcmxbCxJs3EA96SGaesA+GzvHq6DC2vrGe5PvA0dE=";
+    cliHash = "sha256-ZaKG4H8BqIzgs9OFktH9bjHSf9exAlh5kPCGP021BWI=";
     mobyRev = "v${version}";
-    mobyHash = "sha256-yvz8MUOU61OuphPaIDu6+1wsbCXkIxJYQKK0fhcVwp0=";
+    mobyHash = "sha256-Y2yP2NBJLrI83iHe2EoA7/cXiQifrCkUKlwJhINKBXE=";
     runcRev = "v1.2.6";
     runcHash = "sha256-XMN+YKdQOQeOLLwvdrC6Si2iAIyyHD5RgZbrOHrQE/g=";
     containerdRev = "v1.7.27";

@@ -8,14 +8,14 @@
 
 buildPythonPackage rec {
   pname = "falconpy";
-  version = "1.4.8";
+  version = "1.5.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "CrowdStrike";
     repo = "falconpy";
     tag = "v${version}";
-    hash = "sha256-tl/+mYilGFGxq9gJcu9tmm6wenF14gIP0gB+HAXQh0o=";
+    hash = "sha256-neZ0V0OpX1GTchkLdE+hKMRl9jKnJ/OCtXY0q1eAxzA=";
   };
 
   build-system = [ hatchling ];

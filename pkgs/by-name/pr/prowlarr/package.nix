@@ -37,16 +37,16 @@ let
 
   hash =
     {
-      aarch64-darwin = "sha256-5wuBChkTOljCPPRsQw6KRKbpqjW5GwJWWw8EBDVsIw0=";
-      aarch64-linux = "sha256-4bqK+fEkYk9LK3suWgqoSzf9vKtPpbYGuEL62M/KHR4=";
-      x86_64-darwin = "sha256-azG6bG7zwzZ/VU5TfjS7w3OecRb4ovgAbjlAcIyGBCM=";
-      x86_64-linux = "sha256-bHdI+eVBQAPQAceP2zDnxj9uh/z5aA84W1leFO5Fw0w=";
+      aarch64-darwin = "sha256-IkFkQoEPVaV+eVp2DkZECXTkzJyyNYTUBsCBdXCBZC8=";
+      aarch64-linux = "sha256-uwg5Ec9MC6jLwNdauF1tj2gSkhWdyhvWnUTLt8P1OZw=";
+      x86_64-darwin = "sha256-mdDZvKyhKXnHEKvZRH8Di6dZP80AEktnkMOnIZW+Gik=";
+      x86_64-linux = "sha256-N0KDb6MsGAJKSh5GSm7aiamjflHRXb06fL1KM2T1+bg=";
     }
     .${stdenv.hostPlatform.system} or unsupported;
 in
 stdenv.mkDerivation rec {
   inherit pname;
-  version = "1.32.2.4987";
+  version = "1.36.3.5071";
 
   src = fetchurl {
     url = "https://github.com/Prowlarr/Prowlarr/releases/download/v${version}/Prowlarr.master.${version}.${os}-core-${arch}.tar.gz";
@@ -83,12 +83,12 @@ stdenv.mkDerivation rec {
     tests.smoke-test = nixosTests.prowlarr;
   };
 
-  meta = with lib; {
+  meta = {
     description = "Indexer manager/proxy built on the popular arr .net/reactjs base stack";
     homepage = "https://wiki.servarr.com/prowlarr";
     changelog = "https://github.com/Prowlarr/Prowlarr/releases/tag/v${version}";
-    license = licenses.gpl3Only;
-    maintainers = with maintainers; [ pizzapim ];
+    license = lib.licenses.gpl3Only;
+    maintainers = with lib.maintainers; [ pizzapim ];
     mainProgram = "Prowlarr";
     platforms = [
       "aarch64-darwin"

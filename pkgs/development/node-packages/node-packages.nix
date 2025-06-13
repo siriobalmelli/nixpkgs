@@ -61456,24 +61456,6 @@ in
     bypassCache = true;
     reconstructLock = true;
   };
-  prettier = nodeEnv.buildNodePackage {
-    name = "prettier";
-    packageName = "prettier";
-    version = "3.5.3";
-    src = fetchurl {
-      url = "https://registry.npmjs.org/prettier/-/prettier-3.5.3.tgz";
-      sha512 = "QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==";
-    };
-    buildInputs = globalBuildInputs;
-    meta = {
-      description = "Prettier is an opinionated code formatter";
-      homepage = "https://prettier.io";
-      license = "MIT";
-    };
-    production = true;
-    bypassCache = true;
-    reconstructLock = true;
-  };
   pscid = nodeEnv.buildNodePackage {
     name = "pscid";
     packageName = "pscid";
@@ -62081,27 +62063,6 @@ in
       description = "A deep deletion module for node (like `rm -rf`)";
       homepage = "https://github.com/isaacs/rimraf#readme";
       license = "ISC";
-    };
-    production = true;
-    bypassCache = true;
-    reconstructLock = true;
-  };
-  rollup = nodeEnv.buildNodePackage {
-    name = "rollup";
-    packageName = "rollup";
-    version = "4.35.0";
-    src = fetchurl {
-      url = "https://registry.npmjs.org/rollup/-/rollup-4.35.0.tgz";
-      sha512 = "kg6oI4g+vc41vePJyO6dHt/yl0Rz3Thv0kJeVQ3D1kS3E5XSuKbPc29G4IpT/Kv1KQwgHVcN+HtyS+HYLNSvQg==";
-    };
-    dependencies = [
-      sources."@types/estree-1.0.6"
-    ];
-    buildInputs = globalBuildInputs;
-    meta = {
-      description = "Next-generation ES module bundler";
-      homepage = "https://rollupjs.org/";
-      license = "MIT";
     };
     production = true;
     bypassCache = true;

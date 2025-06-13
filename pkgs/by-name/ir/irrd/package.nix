@@ -8,6 +8,7 @@
   postgresql,
   postgresqlTestHook,
   valkey,
+  redisTestHook,
 }:
 
 let
@@ -91,6 +92,7 @@ py.pkgs.buildPythonPackage rec {
     [
       git
       valkey
+      redisTestHook
       postgresql
       postgresqlTestHook
     ]
@@ -151,14 +153,6 @@ py.pkgs.buildPythonPackage rec {
     ++ py.pkgs.uvicorn.optional-dependencies.standard;
 
   preCheck = ''
-    redis-server &
-    REDIS_PID=$!
-
-    while ! redis-cli --scan ; do
-      echo waiting for redis
-      sleep 1
-    done
-
     export SMTPD_HOST=127.0.0.1
     export IRRD_DATABASE_URL="postgres:///$PGDATABASE"
     export IRRD_REDIS_URL="redis://localhost/1"
@@ -180,11 +174,11 @@ py.pkgs.buildPythonPackage rec {
     "test_050_non_json_response"
   ];
 
-  meta = with lib; {
+  meta = {
     changelog = "https://irrd.readthedocs.io/en/v${version}/releases/";
     description = "Internet Routing Registry database server, processing IRR objects in the RPSL format";
-    license = licenses.mit;
+    license = lib.licenses.mit;
     homepage = "https://github.com/irrdnet/irrd";
-    maintainers = teams.wdz.members;
+    teams = [ lib.teams.wdz ];
   };
 }

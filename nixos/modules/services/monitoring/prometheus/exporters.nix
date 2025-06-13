@@ -65,6 +65,7 @@ let
         "dnssec"
         "domain"
         "dovecot"
+        "ebpf"
         "fastly"
         "flow"
         "fritz"
@@ -588,6 +589,6 @@ in
 
   meta = {
     doc = ./exporters.md;
-    maintainers = [ maintainers.willibutz ];
+    maintainers = [ ];
   };
 }

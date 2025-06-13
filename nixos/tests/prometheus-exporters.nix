@@ -407,6 +407,20 @@ let
         '';
       };
 
+    ebpf = {
+      exporterConfig = {
+        enable = true;
+        names = [ "timers" ];
+      };
+      exporterTest = ''
+        wait_for_unit("prometheus-ebpf-exporter.service")
+        wait_for_open_port(9435)
+        succeed(
+            "curl -sSf http://localhost:9435/metrics | grep 'ebpf_exporter_enabled_configs{name=\"timers\"} 1'"
+        )
+      '';
+    };
+
     fastly = {
       exporterConfig = {
         enable = true;
@@ -1891,9 +1905,7 @@ mapAttrs (
         ${nodeName}.shutdown()
       '';
 
-      meta = with maintainers; {
-        maintainers = [ willibutz ];
-      };
+      meta.maintainers = [ ];
     }
   ))
 ) exporterTests

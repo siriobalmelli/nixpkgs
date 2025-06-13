@@ -13,6 +13,7 @@
   pkg-config,
   sqlite,
   ragel,
+  fasttext,
   icu,
   vectorscan,
   jemalloc,
@@ -23,20 +24,22 @@
   xxHash,
   zstd,
   libarchive,
-  withBlas ? true,
+  # Enabling blas support breaks bayes filter training from dovecot in nixos-mailserver tests
+  # https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/issues/321
+  withBlas ? false,
   withLuaJIT ? stdenv.hostPlatform.isx86_64,
   nixosTests,
 }:
 
 stdenv.mkDerivation rec {
   pname = "rspamd";
-  version = "3.11.1";
+  version = "3.12.0";
 
   src = fetchFromGitHub {
     owner = "rspamd";
     repo = "rspamd";
     rev = version;
-    hash = "sha256-vG52R8jYJlCgQqhA8zbZLMES1UxfxknAVOt87nhcflM=";
+    hash = "sha256-4C+bhUkqdn9RelHf6LfcfxVCIiBUCt4BxuI9TGdlIMc=";
   };
 
   hardeningEnable = [ "pie" ];
@@ -57,6 +60,7 @@ stdenv.mkDerivation rec {
       pcre
       sqlite
       ragel
+      fasttext
       icu
       jemalloc
       libsodium
@@ -80,6 +84,8 @@ stdenv.mkDerivation rec {
     "-DDBDIR=/var/lib/rspamd"
     "-DLOGDIR=/var/log/rspamd"
     "-DLOCAL_CONFDIR=/etc/rspamd"
+    "-DENABLE_BLAS=${if withBlas then "ON" else "OFF"}"
+    "-DENABLE_FASTTEXT=ON"
     "-DENABLE_JEMALLOC=ON"
     "-DSYSTEM_DOCTEST=ON"
     "-DSYSTEM_FMT=ON"

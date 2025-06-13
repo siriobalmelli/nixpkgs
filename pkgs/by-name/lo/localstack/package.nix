@@ -6,14 +6,14 @@
 
 python3.pkgs.buildPythonApplication rec {
   pname = "localstack";
-  version = "4.2.0";
+  version = "4.4.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "localstack";
     repo = "localstack";
     tag = "v${version}";
-    hash = "sha256-cmBorHlYL7xmq4SIdyGu11/byCJK+OzrJsqVZHJDDTE=";
+    hash = "sha256-kRAlRJlGdpbSmbffhAIJvWWqKG9nhe6zHCQyxX88gRM=";
   };
 
   build-system = with python3.pkgs; [

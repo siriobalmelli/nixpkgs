@@ -174,6 +174,7 @@ mapAliases {
   inherit (pkgs) pm2; # added 2024-01-22
   inherit (pkgs) pnpm; # added 2024-06-26
   postcss-cli = throw "postcss-cli has been removed because it was broken"; # added 2025-03-24
+  inherit (pkgs) prettier; # added 2025-05-31
   prettier_d_slim = pkgs.prettier-d-slim; # added 2023-09-14
   prettier-plugin-toml = throw "prettier-plugin-toml was removed because it provides no executable"; # added 2025-03-23
   inherit (pkgs) prisma; # added 2024-08-31
@@ -187,6 +188,7 @@ mapAliases {
   remod-cli = pkgs.remod; # added 2024-12-04
   "reveal.js" = throw "reveal.js was removed because it provides no executable"; # added 2025-03-23
   reveal-md = pkgs.reveal-md; # added 2023-07-31
+  rollup = throw "rollup has been removed because it was broken"; # added 2025-04-28
   inherit (pkgs) rtlcss; # added 2023-08-29
   s3http = throw "s3http was removed because it was abandoned upstream"; # added 2023-08-18
   inherit (pkgs) serverless; # Added 2023-11-29

@@ -2,6 +2,7 @@
   lib,
   stdenv,
   fetchurl,
+  fetchFromGitHub,
   coreutils,
   nettools,
   java,
@@ -10,7 +11,6 @@
   veriT,
   vampire,
   eprover-ho,
-  naproche,
   rlwrap,
   perl,
   procps,
@@ -21,6 +21,15 @@
 }:
 
 let
+  vampire' = vampire.overrideAttrs (_: {
+    src = fetchFromGitHub {
+      owner = "vprover";
+      repo = "vampire";
+      tag = "v4.8HO4Sledgahammer";
+      hash = "sha256-CmppaGa4M9tkE1b25cY1LSPFygJy5yV4kpHKbPqvcVE=";
+    };
+  });
+
   sha1 = stdenv.mkDerivation {
     pname = "isabelle-sha1";
     version = "2024";
@@ -43,28 +52,29 @@ let
       cp libsha1.so $out/lib/
     '';
   };
-in
-stdenv.mkDerivation (finalAttrs: rec {
-  pname = "isabelle";
-  version = "2024";
 
-  dirname = "Isabelle${version}";
+in
+stdenv.mkDerivation (finalAttrs: {
+  pname = "isabelle";
+  version = "2025";
+
+  dirname = "Isabelle${finalAttrs.version}";
 
   src =
     if stdenv.hostPlatform.isDarwin then
       fetchurl {
-        url = "https://isabelle.in.tum.de/website-${dirname}/dist/${dirname}_macos.tar.gz";
-        hash = "sha256-IgNfmW9x6h8DBj9vFEGV62oEl01NkW7QdyzXlWmii8c=";
+        url = "https://isabelle.in.tum.de/website-${finalAttrs.dirname}/dist/${finalAttrs.dirname}_macos.tar.gz";
+        hash = "sha256-6ldUwiiFf12dOuJU7JgUeX8kU+opDfILL23LLvDi5/g=";
       }
     else if stdenv.hostPlatform.isx86 then
       fetchurl {
-        url = "https://isabelle.in.tum.de/website-${dirname}/dist/${dirname}_linux.tar.gz";
-        hash = "sha256-YDqq+KvqNll687BlHSwWKobAoN1EIHZvR+VyQDljkmc=";
+        url = "https://isabelle.in.tum.de/website-${finalAttrs.dirname}/dist/${finalAttrs.dirname}_linux.tar.gz";
+        hash = "sha256-PR1m3jcYI/4xqormZjj3NXW6wkTwCzGu4dy2LzgUfFY=";
       }
     else
       fetchurl {
-        url = "https://isabelle.in.tum.de/website-${dirname}/dist/${dirname}_linux_arm.tar.gz";
-        hash = "sha256-jXWVv18WwrVnqVX1s4Lnyf7DkOzPa3EdLXYxgtKD+YA=";
+        url = "https://isabelle.in.tum.de/website-${finalAttrs.dirname}/dist/${finalAttrs.dirname}_linux_arm.tar.gz";
+        hash = "sha256-p/Hp+7J5gJy5s6BVD5Ma1Mu2OS53I8BS7gKSOYYB0PE=";
       };
 
   nativeBuildInputs = [ java ];
@@ -72,21 +82,21 @@ stdenv.mkDerivation (finalAttrs: rec {
   buildInputs = [
     polyml
     veriT
-    vampire
+    vampire'
     eprover-ho
     nettools
   ];
 
   propagatedBuildInputs = lib.optionals stdenv.hostPlatform.isDarwin [ procps ];
 
-  sourceRoot = "${dirname}${lib.optionalString stdenv.hostPlatform.isDarwin ".app"}";
+  sourceRoot = "${finalAttrs.dirname}${lib.optionalString stdenv.hostPlatform.isDarwin ".app"}";
 
   doCheck = stdenv.hostPlatform.system != "aarch64-linux";
   checkPhase = "bin/isabelle build -v HOL-SMT_Examples";
 
   postUnpack = lib.optionalString stdenv.hostPlatform.isDarwin ''
-    mv $sourceRoot ${dirname}
-    sourceRoot=${dirname}
+    mv $sourceRoot ${finalAttrs.dirname}
+    sourceRoot=${finalAttrs.dirname}
   '';
 
   postPatch =
@@ -103,8 +113,8 @@ stdenv.mkDerivation (finalAttrs: rec {
       EOF
 
       cat >contrib/vampire-*/etc/settings <<EOF
-        VAMPIRE_HOME=${vampire}/bin
-        VAMPIRE_VERSION=${vampire.version}
+        VAMPIRE_HOME=${vampire'}/bin
+        VAMPIRE_VERSION=${vampire'.version}
         VAMPIRE_EXTRA_OPTIONS="--mode casc"
       EOF
 
@@ -122,13 +132,6 @@ stdenv.mkDerivation (finalAttrs: rec {
         ISABELLE_JAVA_PLATFORM=${stdenv.system}
         ISABELLE_JDK_HOME=${java}
       EOF
-
-    ''
-    + lib.optionalString stdenv.hostPlatform.isx86 ''
-      rm contrib/naproche-*/x86*/Naproche-SAD
-      ln -s ${naproche}/bin/Naproche-SAD contrib/naproche-*/x86*/
-    ''
-    + ''
 
       echo ISABELLE_LINE_EDITOR=${rlwrap}/bin/rlwrap >>etc/settings
 
@@ -206,11 +209,11 @@ stdenv.mkDerivation (finalAttrs: rec {
 
     # icon
     mkdir -p "$out/share/icons/hicolor/isabelle/apps"
-    cp "$out/Isabelle${version}/lib/icons/isabelle.xpm" "$out/share/icons/hicolor/isabelle/apps/"
+    cp "$out/Isabelle${finalAttrs.version}/lib/icons/isabelle.xpm" "$out/share/icons/hicolor/isabelle/apps/"
 
     # desktop item
     mkdir -p "$out/share"
-    cp -r "${desktopItem}/share/applications" "$out/share/applications"
+    cp -r "${finalAttrs.desktopItem}/share/applications" "$out/share/applications"
   '';
 
   desktopItem = makeDesktopItem {
@@ -218,7 +221,7 @@ stdenv.mkDerivation (finalAttrs: rec {
     exec = "isabelle jedit";
     icon = "isabelle";
     desktopName = "Isabelle";
-    comment = meta.description;
+    comment = finalAttrs.meta.description;
     categories = [
       "Education"
       "Science"
@@ -227,7 +230,7 @@ stdenv.mkDerivation (finalAttrs: rec {
   };
 
   meta = with lib; {
-    description = "A generic proof assistant";
+    description = "Generic proof assistant";
 
     longDescription = ''
       Isabelle is a generic proof assistant.  It allows mathematical formulas
