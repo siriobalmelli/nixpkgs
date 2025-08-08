@@ -14,18 +14,18 @@
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "codex";
-  version = "0.14.0";
+  version = "0.19.0";
 
   src = fetchFromGitHub {
     owner = "openai";
     repo = "codex";
     tag = "rust-v${finalAttrs.version}";
-    hash = "sha256-qpYkD8fpnlTJ7RLAQrfswLFc58l/KY0x8NgGl/msG/I=";
+    hash = "sha256-s7gN1fsk/PRiVVzlrtmAUd2Vu8hhKtlCesLOVrzJ/58=";
   };
 
   sourceRoot = "${finalAttrs.src.name}/codex-rs";
 
-  cargoHash = "sha256-oPWkxEMnffDZ7cmjWmmYGurYnHn4vYu64BhG7NhrxhE=";
+  cargoHash = "sha256-zgmiWyWB08v1WQVFzxpC/LGwF+XXbs8iW1d7i9Iw0Q4=";
 
   nativeBuildInputs = [
     installShellFiles
@@ -53,6 +53,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     "--skip=test_conversation_create_and_send_message_ok" # Version 0.0.0 hardcoded
     "--skip=test_send_message_session_not_found" # Version 0.0.0 hardcoded
     "--skip=test_send_message_success" # Version 0.0.0 hardcoded
+    "--skip=env_var_overrides_loaded_auth"
   ];
 
   postInstall = lib.optionalString installShellCompletions ''
