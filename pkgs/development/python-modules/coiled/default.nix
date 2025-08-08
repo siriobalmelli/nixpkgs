@@ -39,12 +39,12 @@
 
 buildPythonPackage rec {
   pname = "coiled";
-  version = "1.90.4";
+  version = "1.113.0";
   pyproject = true;
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-wICWij2mdXlV3aYNeK+vITicEKbiuaO2PcZE+h9QDBo=";
+    hash = "sha256-1AIE06pssYFaiYBTv7gY4/Kw2jwKntvU/AMy2I77nsY=";
   };
 
   build-system = [
@@ -89,7 +89,7 @@ buildPythonPackage rec {
   meta = {
     description = "Python client for coiled.io dask clusters";
     homepage = "https://www.coiled.io/";
-    license = lib.licenses.bsd3;
+    license = lib.licenses.elastic20;
     maintainers = with lib.maintainers; [ daspk04 ];
     mainProgram = "coiled";
   };

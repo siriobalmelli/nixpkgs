@@ -39,7 +39,7 @@ in
     htpasswd-file = lib.mkOption {
       default = null;
       type = lib.types.nullOr lib.types.path;
-      description = "The path to the servers .htpasswd file. Defaults to {dataDir}/htpasswd.";
+      description = "The path to the servers .htpasswd file. Defaults to `\${dataDir}/.htpasswd`.";
     };
 
     privateRepos = lib.mkOption {
@@ -90,7 +90,7 @@ in
         ExecStart = ''
           ${cfg.package}/bin/rest-server \
           --path ${cfg.dataDir} \
-          --htpasswd-file ${cfg.htpasswd-file} \
+          ${lib.optionalString (cfg.htpasswd-file != null) "--htpasswd-file ${cfg.htpasswd-file}"} \
           ${lib.optionalString cfg.appendOnly "--append-only"} \
           ${lib.optionalString cfg.privateRepos "--private-repos"} \
           ${lib.optionalString cfg.prometheus "--prometheus"} \
@@ -119,7 +119,7 @@ in
         ProtectControlGroups = true;
         PrivateDevices = true;
         ReadWritePaths = [ cfg.dataDir ];
-        ReadOnlyPaths = [ cfg.htpasswd-file ];
+        ReadOnlyPaths = lib.optional (cfg.htpasswd-file != null) cfg.htpasswd-file;
         RemoveIPC = true;
         RestrictAddressFamilies = "none";
         RestrictNamespaces = true;

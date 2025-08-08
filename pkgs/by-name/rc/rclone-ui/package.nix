@@ -12,7 +12,6 @@
   wrapGAppsHook3,
 
   openssl,
-  libsoup_2_4,
   webkitgtk_4_1,
   glib-networking,
   libappindicator,
@@ -39,7 +38,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   cargoRoot = "src-tauri";
   buildAndTestSubdir = finalAttrs.cargoRoot;
-  useFetchCargoVendor = true;
+
   cargoHash = "sha256-o21of2eS2KZtg1U1E6RwdaA8jGhEVzg7HkgOv1k5wxI=";
 
   # Disable tauri bundle updater, can be removed when #389107 is merged
@@ -62,7 +61,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   buildInputs = [
     openssl
-    libsoup_2_4
     webkitgtk_4_1
     glib-networking
     libappindicator

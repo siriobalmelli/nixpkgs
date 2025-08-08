@@ -28,18 +28,17 @@ Rust applications are packaged by using the `buildRustPackage` helper from `rust
   rustPlatform,
 }:
 
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "ripgrep";
   version = "14.1.1";
 
   src = fetchFromGitHub {
     owner = "BurntSushi";
-    repo = pname;
-    rev = version;
+    repo = "ripgrep";
+    tag = finalAttrs.version;
     hash = "sha256-gyWnahj1A+iXUQlQ1O1H1u7K5euYQOld9qWm99Vjaeg=";
   };
 
-  useFetchCargoVendor = true;
   cargoHash = "sha256-9atn5qyBDy4P6iUoHFhg+TV6Ur71fiah4oTJbBMeEy4=";
 
   meta = {
@@ -48,7 +47,7 @@ rustPlatform.buildRustPackage rec {
     license = lib.licenses.unlicense;
     maintainers = [ ];
   };
-}
+})
 ```
 
 `buildRustPackage` requires a `cargoHash` attribute, computed over all crate sources of this package.
@@ -63,9 +62,7 @@ hash using `nix-hash --to-sri --type sha256 "<original sha256>"`.
 :::
 
 ```nix
-{
-  cargoHash = "sha256-l1vL2ZdtDRxSGvP0X/l3nMw8+6WF67KPutJEzUROjg8=";
-}
+{ cargoHash = "sha256-l1vL2ZdtDRxSGvP0X/l3nMw8+6WF67KPutJEzUROjg8="; }
 ```
 
 If this method does not work, you can resort to copying the `Cargo.lock` file into nixpkgs
@@ -78,9 +75,7 @@ then be taken from the failed build. A fake hash can be used for
 `cargoHash` as follows:
 
 ```nix
-{
-  cargoHash = lib.fakeHash;
-}
+{ cargoHash = lib.fakeHash; }
 ```
 
 Per the instructions in the [Cargo Book](https://doc.rust-lang.org/cargo/guide/cargo-toml-vs-cargo-lock.html)
@@ -104,21 +99,20 @@ be made invariant to the version by setting `cargoDepsName` to
 `pname`:
 
 ```nix
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "broot";
   version = "1.2.0";
 
   src = fetchCrate {
-    inherit pname version;
+    inherit (finalAttrs) pname version;
     hash = "sha256-aDQA4A5mScX9or3Lyiv/5GyAehidnpKKE0grhbP1Ctc=";
   };
 
-  useFetchCargoVendor = true;
   cargoHash = "sha256-iDYh52rj1M5Uupvbx2WeDd/jvQZ+2A50V5rp5e2t7q4=";
-  cargoDepsName = pname;
+  cargoDepsName = finalAttrs.pname;
 
   # ...
-}
+})
 ```
 
 ### Importing a `Cargo.lock` file {#importing-a-cargo.lock-file}
@@ -184,7 +178,7 @@ The output hash of each dependency that uses a git source must be
 specified in the `outputHashes` attribute. For example:
 
 ```nix
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage {
   pname = "myproject";
   version = "1.0.0";
 
@@ -209,7 +203,7 @@ For usage outside nixpkgs, `allowBuiltinFetchGit` could be used to
 avoid having to specify `outputHashes`. For example:
 
 ```nix
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage {
   pname = "myproject";
   version = "1.0.0";
 
@@ -235,7 +229,7 @@ If you want to use different features for check phase, you can use
 For example:
 
 ```nix
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage {
   pname = "myproject";
   version = "1.0.0";
 
@@ -427,7 +421,7 @@ source code in a reproducible way. If it is missing or out-of-date one can use
 the `cargoPatches` attribute to update or add it.
 
 ```nix
-rustPlatform.buildRustPackage rec {
+rustPlatform.buildRustPackage {
   # ...
   cargoPatches = [
     # a patch file to add/update Cargo.lock in the source code
@@ -480,11 +474,7 @@ and fetches every dependency as a separate fixed-output derivation.
 `importCargoLock` can be used as follows:
 
 ```nix
-{
-  cargoDeps = rustPlatform.importCargoLock {
-    lockFile = ./Cargo.lock;
-  };
-}
+{ cargoDeps = rustPlatform.importCargoLock { lockFile = ./Cargo.lock; }; }
 ```
 
 If the `Cargo.lock` file includes git dependencies, then their output
@@ -575,8 +565,8 @@ buildPythonPackage rec {
 
   src = fetchFromGitHub {
     owner = "huggingface";
-    repo = pname;
-    rev = "python-v${version}";
+    repo = "tokenizers";
+    tag = "python-v${version}";
     hash = "sha256-rQ2hRV52naEf6PvRsWVCTN7B1oXAQGmnpJw4iIdhamw=";
   };
 
@@ -607,8 +597,8 @@ In some projects, the Rust crate is not in the main Python source
 directory.  In such cases, the `cargoRoot` attribute can be used to
 specify the crate's directory relative to `sourceRoot`. In the
 following example, the crate is in `src/rust`, as specified in the
-`cargoRoot` attribute. Note that we also need to specify the correct
-path for `fetchCargoVendor`.
+`cargoRoot` attribute. Note that we also need to pass in `cargoRoot`
+to `fetchCargoVendor`.
 
 ```nix
 {
@@ -629,8 +619,12 @@ buildPythonPackage rec {
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
-    inherit pname version src;
-    sourceRoot = "${pname}-${version}/${cargoRoot}";
+    inherit
+      pname
+      version
+      src
+      cargoRoot
+      ;
     hash = "sha256-ctUt8maCjnGddKPf+Ii++wKsAXA1h+JM6zKQNXXwJqQ=";
   };
 
@@ -665,7 +659,7 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "Qiskit";
     repo = "retworkx";
-    rev = version;
+    tag = version;
     hash = "sha256-11n30ldg3y3y6qxg3hbj837pnbwjkqw3nxq6frds647mmmprrd20=";
   };
 
@@ -705,7 +699,7 @@ Some projects, especially GNOME applications, are built with the Meson Build Sys
   tinysparql,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "health";
   version = "0.95.0";
 
@@ -713,12 +707,12 @@ stdenv.mkDerivation rec {
     domain = "gitlab.gnome.org";
     owner = "World";
     repo = "health";
-    rev = version;
+    tag = finalAttrs.version;
     hash = "sha256-PrNPprSS98yN8b8yw2G6hzTSaoE65VbsM3q7FVB4mds=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
-    inherit pname version src;
+    inherit (finalAttrs) pname version src;
     hash = "sha256-eR1ZGtTZQNhofFUEjI7IX16sMKPJmAl7aIFfPJukecg=";
   };
 
@@ -740,7 +734,7 @@ stdenv.mkDerivation rec {
   ];
 
   # ...
-}
+})
 ```
 
 ## `buildRustCrate`: Compiling Rust crates using Nix instead of Cargo {#compiling-rust-crates-using-nix-instead-of-cargo}
@@ -998,22 +992,22 @@ let
     cargo = rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
     rustc = rust-bin.selectLatestNightlyWith (toolchain: toolchain.default);
   };
-in
 
-rustPlatform.buildRustPackage rec {
+in
+rustPlatform.buildRustPackage (finalAttrs: {
   pname = "ripgrep";
   version = "14.1.1";
 
   src = fetchFromGitHub {
     owner = "BurntSushi";
     repo = "ripgrep";
-    rev = version;
+    tag = finalAttrs.version;
     hash = "sha256-gyWnahj1A+iXUQlQ1O1H1u7K5euYQOld9qWm99Vjaeg=";
   };
 
-  useFetchCargoVendor = true;
   cargoHash = "sha256-9atn5qyBDy4P6iUoHFhg+TV6Ur71fiah4oTJbBMeEy4=";
 
+  # Tests require network access. Skipping.
   doCheck = false;
 
   meta = {
@@ -1025,7 +1019,7 @@ rustPlatform.buildRustPackage rec {
     ];
     maintainers = with lib.maintainers; [ ];
   };
-}
+})
 ```
 
 Follow the below steps to try that snippet.

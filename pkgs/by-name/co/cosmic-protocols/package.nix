@@ -9,13 +9,13 @@
 
 stdenv.mkDerivation {
   pname = "cosmic-protocols";
-  version = "0-unstable-2025-04-14";
+  version = "0-unstable-2025-08-04";
 
   src = fetchFromGitHub {
     owner = "pop-os";
     repo = "cosmic-protocols";
-    rev = "67df697105486fa4c9dd6ce00889c8b0526c9bb4";
-    hash = "sha256-rogV5BTloAatfinrgl7I6hakybLkPRKhnwlILBGKkQU=";
+    rev = "5035f8c810bf734401e21e0a9625c7b7e0c73325";
+    hash = "sha256-FYfSVg7v7S8G1gHZ5puAqb2yZES81HK+KMu0819cQ8w=";
   };
 
   makeFlags = [ "PREFIX=${placeholder "out"}" ];
@@ -45,7 +45,7 @@ stdenv.mkDerivation {
       mit
       gpl3Only
     ];
-    maintainers = lib.teams.cosmic.members;
+    teams = [ lib.teams.cosmic ];
     platforms = lib.platforms.linux;
   };
 }

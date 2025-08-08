@@ -13,13 +13,15 @@ let
   # NOTE: When updating these, please also take a look at the changes done to
   # kernel config in the xanmod version commit
   variants = {
+    # ./update-xanmod.sh lts
     lts = {
-      version = "6.12.23";
-      hash = "sha256-OBsKzXcFLwqidotHDmPwKFtBX9zRC7DoDR4hhWZUv/E=";
+      version = "6.12.41";
+      hash = "sha256-REi1cQBAYsfBLCkyhLQfbsREPMzvJHFbCUg1p8oNamA=";
     };
+    # ./update-xanmod.sh main
     main = {
-      version = "6.13.11";
-      hash = "sha256-hv93f1poaCmjdy2G39+T2crnYMS26FxD2Dn2hmTGZB8=";
+      version = "6.15.9";
+      hash = "sha256-43SaSDdOfz+aG2T2C9UFbbXYi/7YxbQfTYrKjeEMP+E=";
     };
   };
 
@@ -70,6 +72,11 @@ let
           RCU_EXP_KTHREAD = yes;
         };
 
+        extraPassthru.updateScript = [
+          ./update-xanmod.sh
+          variant
+        ];
+
         extraMeta = {
           branch = lib.versions.majorMinor version;
           maintainers = with lib.maintainers; [
@@ -79,6 +86,7 @@ let
             zzzsy
             eljamm
           ];
+          teams = [ ];
           description = "Built with custom settings and new features built to provide a stable, responsive and smooth desktop experience";
           broken = stdenv.hostPlatform.isAarch64;
         };

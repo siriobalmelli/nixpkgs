@@ -94,18 +94,18 @@ Release 23.11 ships with a new interface that will eventually replace `texlive.c
 - TeX Live packages are also available under `texlive.pkgs` as derivations with outputs `out`, `tex`, `texdoc`, `texsource`, `tlpkg`, `man`, `info`. They cannot be installed outside of `texlive.combine` but are available for other uses. To repackage a font, for instance, use
 
   ```nix
-  stdenvNoCC.mkDerivation rec {
+  stdenvNoCC.mkDerivation (finalAttrs: {
     src = texlive.pkgs.iwona;
     dontUnpack = true;
 
-    inherit (src) pname version;
+    inherit (finalAttrs.src) pname version;
 
     installPhase = ''
       runHook preInstall
       install -Dm644 $src/fonts/opentype/nowacki/iwona/*.otf -t $out/share/fonts/opentype
       runHook postInstall
     '';
-  }
+  })
   ```
 
   See `biber`, `iwona` for complete examples.
@@ -173,6 +173,7 @@ let
       (writeShellScript "force-tex-output.sh" ''
         out="''${tex-}"
       '')
+      writableTmpDirAsHomeHook # Need a writable $HOME for latexmk
     ];
 
     dontConfigure = true;
@@ -184,7 +185,6 @@ let
       latex foiltex.ins
 
       # Generate the documentation
-      export HOME=.
       latexmk -pdf foiltex.dtx
 
       runHook postBuild
@@ -214,24 +214,20 @@ let
 
   latex_with_foiltex = texliveSmall.withPackages (_: [ foiltex ]);
 in
-runCommand "test.pdf"
-  {
-    nativeBuildInputs = [ latex_with_foiltex ];
-  }
-  ''
-    cat >test.tex <<EOF
-    \documentclass{foils}
+runCommand "test.pdf" { nativeBuildInputs = [ latex_with_foiltex ]; } ''
+  cat >test.tex <<EOF
+  \documentclass{foils}
 
-    \title{Presentation title}
-    \date{}
+  \title{Presentation title}
+  \date{}
 
-    \begin{document}
-    \maketitle
-    \end{document}
-    EOF
-      pdflatex test.tex
-      cp test.pdf $out
-  ''
+  \begin{document}
+  \maketitle
+  \end{document}
+  EOF
+    pdflatex test.tex
+    cp test.pdf $out
+''
 ```
 
 ## LuaLaTeX font cache {#sec-language-texlive-lualatex-font-cache}
@@ -239,15 +235,11 @@ runCommand "test.pdf"
 The font cache for LuaLaTeX is written to `$HOME`.
 Therefore, it is necessary to set `$HOME` to a writable path, e.g. [before using LuaLaTeX in nix derivations](https://github.com/NixOS/nixpkgs/issues/180639):
 ```nix
-runCommandNoCC "lualatex-hello-world"
-  {
-    buildInputs = [ texliveFull ];
-  }
-  ''
-    mkdir $out
-    echo '\documentclass{article} \begin{document} Hello world \end{document}' > main.tex
-    env HOME=$(mktemp -d) lualatex  -interaction=nonstopmode -output-format=pdf -output-directory=$out ./main.tex
-  ''
+runCommandNoCC "lualatex-hello-world" { buildInputs = [ texliveFull ]; } ''
+  mkdir $out
+  echo '\documentclass{article} \begin{document} Hello world \end{document}' > main.tex
+  env HOME=$(mktemp -d) lualatex  -interaction=nonstopmode -output-format=pdf -output-directory=$out ./main.tex
+''
 ```
 
 Additionally, [the cache of a user can diverge from the nix store](https://github.com/NixOS/nixpkgs/issues/278718).

@@ -21,7 +21,6 @@
   libfido2,
   numactl,
   cctools,
-  CoreServices,
   developer_cmds,
   libtirpc,
   rpcsvc-proto,
@@ -32,11 +31,11 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "mysql";
-  version = "8.0.41";
+  version = "8.0.42";
 
   src = fetchurl {
     url = "https://dev.mysql.com/get/Downloads/MySQL-${lib.versions.majorMinor finalAttrs.version}/mysql-${finalAttrs.version}.tar.gz";
-    hash = "sha256-AV0gj3OOKfRjQr9i4Hq1Oxg/MEQq/YE1SnkxrSP+jPc=";
+    hash = "sha256-XrIsIMILdlxYlMkBBIW9B9iptuv7YovP0wYHAXFVJv4=";
   };
 
   nativeBuildInputs = [
@@ -44,7 +43,8 @@ stdenv.mkDerivation (finalAttrs: {
     cmake
     pkg-config
     protobuf
-  ] ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [ rpcsvc-proto ];
+  ]
+  ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [ rpcsvc-proto ];
 
   patches = [
     ./no-force-outline-atomics.patch # Do not force compilers to turn on -moutline-atomics switch
@@ -64,31 +64,29 @@ stdenv.mkDerivation (finalAttrs: {
     substituteInPlace cmake/package_name.cmake --replace-fail "COMMAND sw_vers" "COMMAND ${DarwinTools}/bin/sw_vers"
   '';
 
-  buildInputs =
-    [
-      boost
-      (curl.override { inherit openssl; })
-      icu
-      libedit
-      libevent
-      lz4
-      ncurses
-      openssl
-      protobuf
-      re2
-      readline
-      zlib
-      zstd
-      libfido2
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isLinux [
-      numactl
-      libtirpc
-    ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      CoreServices
-      developer_cmds
-    ];
+  buildInputs = [
+    boost
+    (curl.override { inherit openssl; })
+    icu
+    libedit
+    libevent
+    lz4
+    ncurses
+    openssl
+    protobuf
+    re2
+    readline
+    zlib
+    zstd
+    libfido2
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
+    numactl
+    libtirpc
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    developer_cmds
+  ];
 
   strictDeps = true;
 

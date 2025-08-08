@@ -21,9 +21,7 @@ In particular, all build-time dependencies are checked.
 A user's Nixpkgs configuration is stored in a user-specific configuration file located at `~/.config/nixpkgs/config.nix`. For example:
 
 ```nix
-{
-  allowUnfree = true;
-}
+{ allowUnfree = true; }
 ```
 
 :::{.caution}
@@ -44,9 +42,7 @@ There are two ways to try compiling a package which has been marked as broken.
 -   For permanently allowing broken packages to be built, you may add `allowBroken = true;` to your user's configuration file, like this:
 
     ```nix
-    {
-      allowBroken = true;
-    }
+    { allowBroken = true; }
     ```
 
 
@@ -63,9 +59,7 @@ There are also two ways to try compiling a package which has been marked as unsu
 -   For permanently allowing unsupported packages to be built, you may add `allowUnsupportedSystem = true;` to your user's configuration file, like this:
 
     ```nix
-    {
-      allowUnsupportedSystem = true;
-    }
+    { allowUnsupportedSystem = true; }
     ```
 
 The difference between a package being unsupported on some system and being broken is admittedly a bit fuzzy. If a program *ought* to work on a certain platform, but doesn't, the platform should be included in `meta.platforms`, but marked as broken with e.g.  `meta.broken = !hostPlatform.isWindows`. Of course, this begs the question of what "ought" means exactly. That is left to the package maintainer.
@@ -90,9 +84,7 @@ There are several ways to tweak how Nix handles a package which has been marked 
     This option is a function which accepts a package as a parameter, and returns a boolean. The following example configuration accepts a package and always returns false:
 
     ```nix
-    {
-      allowUnfreePredicate = (pkg: false);
-    }
+    { allowUnfreePredicate = (pkg: false); }
     ```
 
     For a more useful example, try the following. This configuration only allows unfree packages named roon-server and visual studio code:
@@ -151,11 +143,7 @@ There are several ways to tweak how Nix handles a package which has been marked 
     The following example configuration permits the installation of the hypothetically insecure package `hello`, version `1.2.3`:
 
     ```nix
-    {
-      permittedInsecurePackages = [
-        "hello-1.2.3"
-      ];
-    }
+    { permittedInsecurePackages = [ "hello-1.2.3" ]; }
     ```
 
 -   It is also possible to create a custom policy around which insecure packages to allow and deny, by overriding the `allowInsecurePredicate` configuration option.
@@ -165,13 +153,7 @@ There are several ways to tweak how Nix handles a package which has been marked 
     The following configuration example allows any version of the `ovftool` package:
 
     ```nix
-    {
-      allowInsecurePredicate =
-        pkg:
-        builtins.elem (lib.getName pkg) [
-          "ovftool"
-        ];
-    }
+    { allowInsecurePredicate = pkg: builtins.elem (lib.getName pkg) [ "ovftool" ]; }
     ```
 
     Note that `permittedInsecurePackages` is only checked if `allowInsecurePredicate` is not specified.
@@ -300,42 +282,41 @@ This provides us with some useful documentation for using our packages.  However
 
 ```nix
 {
-  packageOverrides =
-    pkgs: with pkgs; rec {
-      myProfile = writeText "my-profile" ''
-        export PATH=$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/sbin:/bin:/usr/sbin:/usr/bin
-        export MANPATH=$HOME/.nix-profile/share/man:/nix/var/nix/profiles/default/share/man:/usr/share/man
-      '';
-      myPackages = pkgs.buildEnv {
-        name = "my-packages";
-        paths = [
-          (runCommand "profile" { } ''
-            mkdir -p $out/etc/profile.d
-            cp ${myProfile} $out/etc/profile.d/my-profile.sh
-          '')
-          aspell
-          bc
-          coreutils
-          ffmpeg
-          man
-          nix
-          emscripten
-          jq
-          nox
-          silver-searcher
-        ];
-        pathsToLink = [
-          "/share/man"
-          "/share/doc"
-          "/bin"
-          "/etc"
-        ];
-        extraOutputsToInstall = [
-          "man"
-          "doc"
-        ];
-      };
+  packageOverrides = pkgs: {
+    myProfile = pkgs.writeText "my-profile" ''
+      export PATH=$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/sbin:/bin:/usr/sbin:/usr/bin
+      export MANPATH=$HOME/.nix-profile/share/man:/nix/var/nix/profiles/default/share/man:/usr/share/man
+    '';
+    myPackages = pkgs.buildEnv {
+      name = "my-packages";
+      paths = with pkgs; [
+        (runCommand "profile" { } ''
+          mkdir -p $out/etc/profile.d
+          cp ${myProfile} $out/etc/profile.d/my-profile.sh
+        '')
+        aspell
+        bc
+        coreutils
+        ffmpeg
+        man
+        nix
+        emscripten
+        jq
+        nox
+        silver-searcher
+      ];
+      pathsToLink = [
+        "/share/man"
+        "/share/doc"
+        "/bin"
+        "/etc"
+      ];
+      extraOutputsToInstall = [
+        "man"
+        "doc"
+      ];
     };
+  };
 }
 ```
 
@@ -360,54 +341,53 @@ Configuring GNU info is a little bit trickier than man pages. To work correctly,
 
 ```nix
 {
-  packageOverrides =
-    pkgs: with pkgs; rec {
-      myProfile = writeText "my-profile" ''
-        export PATH=$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/sbin:/bin:/usr/sbin:/usr/bin
-        export MANPATH=$HOME/.nix-profile/share/man:/nix/var/nix/profiles/default/share/man:/usr/share/man
-        export INFOPATH=$HOME/.nix-profile/share/info:/nix/var/nix/profiles/default/share/info:/usr/share/info
+  packageOverrides = pkgs: {
+    myProfile = pkgs.writeText "my-profile" ''
+      export PATH=$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/sbin:/bin:/usr/sbin:/usr/bin
+      export MANPATH=$HOME/.nix-profile/share/man:/nix/var/nix/profiles/default/share/man:/usr/share/man
+      export INFOPATH=$HOME/.nix-profile/share/info:/nix/var/nix/profiles/default/share/info:/usr/share/info
+    '';
+    myPackages = pkgs.buildEnv {
+      name = "my-packages";
+      paths = with pkgs; [
+        (runCommand "profile" { } ''
+          mkdir -p $out/etc/profile.d
+          cp ${myProfile} $out/etc/profile.d/my-profile.sh
+        '')
+        aspell
+        bc
+        coreutils
+        ffmpeg
+        man
+        nix
+        emscripten
+        jq
+        nox
+        silver-searcher
+        texinfoInteractive
+      ];
+      pathsToLink = [
+        "/share/man"
+        "/share/doc"
+        "/share/info"
+        "/bin"
+        "/etc"
+      ];
+      extraOutputsToInstall = [
+        "man"
+        "doc"
+        "info"
+      ];
+      postBuild = ''
+        if [ -x $out/bin/install-info -a -w $out/share/info ]; then
+          shopt -s nullglob
+          for i in $out/share/info/*.info $out/share/info/*.info.gz; do
+              $out/bin/install-info $i $out/share/info/dir
+          done
+        fi
       '';
-      myPackages = pkgs.buildEnv {
-        name = "my-packages";
-        paths = [
-          (runCommand "profile" { } ''
-            mkdir -p $out/etc/profile.d
-            cp ${myProfile} $out/etc/profile.d/my-profile.sh
-          '')
-          aspell
-          bc
-          coreutils
-          ffmpeg
-          man
-          nix
-          emscripten
-          jq
-          nox
-          silver-searcher
-          texinfoInteractive
-        ];
-        pathsToLink = [
-          "/share/man"
-          "/share/doc"
-          "/share/info"
-          "/bin"
-          "/etc"
-        ];
-        extraOutputsToInstall = [
-          "man"
-          "doc"
-          "info"
-        ];
-        postBuild = ''
-          if [ -x $out/bin/install-info -a -w $out/share/info ]; then
-            shopt -s nullglob
-            for i in $out/share/info/*.info $out/share/info/*.info.gz; do
-                $out/bin/install-info $i $out/share/info/dir
-            done
-          fi
-        '';
-      };
     };
+  };
 }
 ```
 

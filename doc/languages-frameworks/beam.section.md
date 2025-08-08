@@ -65,9 +65,7 @@ let
     overlays = [ ];
   };
 in
-pkgs.mkShell {
-  packages = [ pkgs.beamPackages.rebar3 ];
-}
+pkgs.mkShell { packages = [ pkgs.beamPackages.rebar3 ]; }
 ```
 :::
 
@@ -259,13 +257,13 @@ in
     wantedBy = [ "multi-user.target" ];
     after = [
       "network.target"
-      "postgresql.service"
+      "postgresql.target"
     ];
     # note that if you are connecting to a postgres instance on a different host
-    # postgresql.service should not be included in the requires.
+    # postgresql.target should not be included in the requires.
     requires = [
       "network-online.target"
-      "postgresql.service"
+      "postgresql.target"
     ];
     description = "my app";
     environment = {
@@ -295,6 +293,8 @@ in
       '';
       Restart = "on-failure";
       RestartSec = 5;
+    };
+    unitConfig = {
       StartLimitBurst = 3;
       StartLimitInterval = 10;
     };
@@ -322,9 +322,7 @@ with pkgs;
 let
   elixir = beam.packages.erlang_27.elixir_1_18;
 in
-mkShell {
-  buildInputs = [ elixir ];
-}
+mkShell { buildInputs = [ elixir ]; }
 ```
 
 ### Using an overlay {#beam-using-overlays}
@@ -346,11 +344,7 @@ let
   pkgs = import <nixpkgs> { overlays = [ elixir_1_18_1_overlay ]; };
 in
 with pkgs;
-mkShell {
-  buildInputs = [
-    elixir_1_18
-  ];
-}
+mkShell { buildInputs = [ elixir_1_18 ]; }
 ```
 
 #### Elixir - Phoenix project {#elixir---phoenix-project}
@@ -375,16 +369,7 @@ let
     nodePackages.prettier
   ];
 
-  inputs =
-    basePackages
-    ++ lib.optionals stdenv.hostPlatform.isLinux [ inotify-tools ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin (
-      with darwin.apple_sdk.frameworks;
-      [
-        CoreFoundation
-        CoreServices
-      ]
-    );
+  inputs = basePackages ++ lib.optionals stdenv.hostPlatform.isLinux [ inotify-tools ];
 
   # define shell startup command
   hooks = ''

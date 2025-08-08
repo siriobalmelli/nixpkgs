@@ -10,19 +10,15 @@
 
 python3Packages.buildPythonApplication rec {
   pname = "twitch-dl";
-  version = "2.11.0";
+  version = "3.1.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "ihabunek";
     repo = "twitch-dl";
     tag = version;
-    hash = "sha256-L+IbcSUaxhTg2slNc5x1VJPnA5e2qrPEeWjspK2COAI=";
+    hash = "sha256-Nn/Nwd1KvrkR+uGp8HmRGeBC7E0/Y1EVMpJAp7UDj7Q=";
   };
-
-  pythonRelaxDeps = [
-    "m3u8"
-  ];
 
   nativeBuildInputs = [
     python3Packages.setuptools

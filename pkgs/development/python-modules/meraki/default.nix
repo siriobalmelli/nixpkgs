@@ -13,7 +13,7 @@
 
 buildPythonPackage rec {
   pname = "meraki";
-  version = "2.0.1";
+  version = "2.0.3";
   pyproject = true;
 
   disabled = pythonOlder "3.10";
@@ -22,7 +22,7 @@ buildPythonPackage rec {
     owner = "meraki";
     repo = "dashboard-api-python";
     tag = version;
-    hash = "sha256-/zRPwPIpKQ56kjBA+zaQefVek51nd+3jlvm5jIz/Ekg=";
+    hash = "sha256-dAy295DB213TotVkVGvLYIzzHk1M9PycMNgyX+wD7ms=";
   };
 
   pythonRelaxDeps = [

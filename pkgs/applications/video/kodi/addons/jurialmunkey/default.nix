@@ -9,13 +9,13 @@
 buildKodiAddon rec {
   pname = "jurialmunkey";
   namespace = "script.module.jurialmunkey";
-  version = "0.2.21";
+  version = "0.2.29";
 
   src = fetchFromGitHub {
     owner = "jurialmunkey";
     repo = namespace;
     rev = "v${version}";
-    hash = "sha256-vcYydVrcVJ7jaeFXCad7pgxvoZy63QLlRS3HO9GsmtU=";
+    hash = "sha256-qVS3vwYFicDXZ8ls/5MfZL8iwmz+CAwB6ZWUV4Zjmbw=";
   };
 
   propagatedBuildInputs = [
@@ -31,6 +31,6 @@ buildKodiAddon rec {
     homepage = "https://github.com/jurialmunkey/script.module.jurialmunkey/tree/main";
     description = "Common code required by TMDbHelper and other related jurialmunkey add-ons";
     license = licenses.gpl3Plus;
-    maintainers = teams.kodi.members;
+    teams = [ teams.kodi ];
   };
 }

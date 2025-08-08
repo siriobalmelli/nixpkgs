@@ -58,7 +58,7 @@ Each of those compiler versions has a corresponding attribute set `packages` bui
 it. However, the non-standard package sets are not tested regularly and, as a
 result, contain fewer working packages. The corresponding package set for GHC
 9.4.8 is `haskell.packages.ghc948`. In fact `haskellPackages` (at the time of writing) is just an alias
-for `haskell.packages.ghc966`:
+for `haskell.packages.ghc984`:
 
 Every package set also re-exposes the GHC used to build its packages as `haskell.packages.*.ghc`.
 
@@ -161,6 +161,27 @@ completely incompatible with packages from `haskellPackages`.
 
 <!-- TODO(@maralorn) Link to package set generation docs in the contributors guide below. -->
 
+### GHC Deprecation Policy {#ghc-deprecation-policy}
+
+We remove GHC versions according to the following policy:
+
+#### Major GHC versions {#major-ghc-deprecation}
+
+We keep the following GHC major versions:
+1. The current Stackage LTS as the default and all later major versions.
+2. The two latest major versions older than our default.
+3. The currently recommended GHCup version and all later major versions.
+
+Older GHC versions might be kept longer, if there are in-tree consumers. We will coordinate with the maintainers of those dependencies to find a way forward.
+
+#### Minor GHC versions {#minor-ghc-deprecation}
+
+Every major version has a default minor version. The default minor version will be updated as soon as viable without breakage.
+
+Older minor versions for a supported major version will only be kept, if they are the last supported version of a major Stackage LTS release.
+
+<!-- Policy introduced here: https://discourse.nixos.org/t/nixpkgs-ghc-deprecation-policy-user-feedback-necessary/64153 -->
+
 ## `haskellPackages.mkDerivation` {#haskell-mkderivation}
 
 Every haskell package set has its own haskell-aware `mkDerivation` which is used
@@ -201,6 +222,10 @@ If `null` (which is the default value), the one included in `src` is used.
 
 `editedCabalFile`
 : `sha256` hash of the cabal file identified by `revision` or `null`.
+
+`env`
+: Extra environment variables to set during the build.
+These will also be set inside the [development environment defined by the `passthru.env` attribute in the returned derivation](#haskell-development-environments), but will not be set inside a development environment built with [`shellFor`](#haskell-shellFor) that includes this package.
 
 `configureFlags`
 : Extra flags passed when executing the `configure` command of `Setup.hs`.
@@ -297,8 +322,8 @@ Defaults to `false`.
 : Whether to build (HTML) documentation using [haddock][haddock].
 Defaults to `true` if supported.
 
-`testTarget`
-: Name of the test suite to build and run. If unset, all test suites will be executed.
+`testTargets`
+: Names of the test suites to build and run. If unset, all test suites will be executed.
 
 `preCompileBuildDriver`
 : Shell code to run before compiling `Setup.hs`.
@@ -621,6 +646,12 @@ environment. This means you can reuse Nix expressions of packages included in
 nixpkgs, but also use local Nix expressions like this: `hpkgs: [
 (hpkgs.callPackage ./my-project.nix { }) ]`.
 
+`extraDependencies`
+: Extra dependencies, in the form of cabal2nix build attributes. An example use
+case is when you have Haskell scripts that use libraries that don't occur in
+your packages' dependencies. Example: `hpkgs: {libraryHaskellDepends =
+[ hpkgs.releaser ]}`. Defaults to `hpkgs: { }`.
+
 `nativeBuildInputs`
 : Expects a list of derivations to add as build tools to the build environment.
 This is the place to add packages like `cabal-install`, `doctest` or `hlint`.
@@ -752,9 +783,7 @@ need to build `nix-tree` with a more recent version of `brick` than the default
 one provided by `haskellPackages`:
 
 ```nix
-haskellPackages.nix-tree.override {
-  brick = haskellPackages.brick_0_67;
-}
+haskellPackages.nix-tree.override { brick = haskellPackages.brick_0_67; }
 ```
 
 <!-- TODO(@sternenseemann): This belongs in the next section
@@ -773,7 +802,7 @@ that depend on that library, you may want to use:
 
 ```nix
 haskellPackages.haskell-ci.overrideScope (self: super: {
-  Cabal = self.Cabal_3_14_1_0;
+  Cabal = self.Cabal_3_14_2_0;
 })
 ```
 
@@ -810,8 +839,8 @@ let
       install -Dm644 man/${drv.pname}.1 -t "$out/share/man/man1"
     '';
   });
-in
 
+in
 installManPage haskellPackages.pnbackup
 ```
 
@@ -1279,8 +1308,8 @@ let
   ghcName = "ghc92";
   # Desired new setting
   enableProfiling = true;
-in
 
+in
 [
   # The first overlay modifies the GHC derivation so that it does or does not
   # build profiling versions of the core libraries bundled with it. It is
@@ -1291,8 +1320,8 @@ in
     final: prev:
     let
       inherit (final) lib;
-    in
 
+    in
     {
       haskell = prev.haskell // {
         compiler = prev.haskell.compiler // {
@@ -1310,8 +1339,8 @@ in
     let
       inherit (final) lib;
       haskellLib = final.haskell.lib.compose;
-    in
 
+    in
     {
       haskell = prev.haskell // {
         packages = prev.haskell.packages // {

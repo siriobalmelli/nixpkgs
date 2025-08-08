@@ -3,7 +3,6 @@
   rustPlatform,
   fetchFromGitHub,
   stdenv,
-  darwin,
   installShellFiles,
 }:
 
@@ -18,12 +17,8 @@ rustPlatform.buildRustPackage rec {
     hash = "sha256-OCRfJh6vfAkL86J1GuLgfs57from3fx0NS1Bh1+/oXE=";
   };
 
-  useFetchCargoVendor = true;
   cargoHash = "sha256-aEjsBhm0iPysA1Wz1Ea7rtX0g/yH/rklUkYV/Elxcq8=";
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk_11_0.frameworks.AppKit
-  ];
   nativeBuildInputs = [ installShellFiles ];
 
   # device::test_physical_device_name test fails on Darwin
