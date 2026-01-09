@@ -1882,6 +1882,8 @@ self: super: with self; {
 
   beanquery = callPackage ../development/python-modules/beanquery { };
 
+  beancount_payeeverif = callPackage ../development/python-modules/beancount_payeeverif { };
+
   beanstalkc = callPackage ../development/python-modules/beanstalkc { };
 
   beartype = callPackage ../development/python-modules/beartype { };
