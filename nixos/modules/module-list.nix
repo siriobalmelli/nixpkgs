@@ -1049,6 +1049,7 @@
   ./services/monitoring/prometheus/pushgateway.nix
   ./services/monitoring/prometheus/sachet.nix
   ./services/monitoring/prometheus/xmpp-alerts.nix
+  ./services/monitoring/pyroscope.nix
   ./services/monitoring/riemann-dash.nix
   ./services/monitoring/riemann-tools.nix
   ./services/monitoring/riemann.nix
@@ -1623,7 +1624,6 @@
   ./services/web-apps/drasl.nix
   ./services/web-apps/drupal.nix
   ./services/web-apps/echoip.nix
-  ./services/web-apps/eintopf.nix
   ./services/web-apps/engelsystem.nix
   ./services/web-apps/ente.nix
   ./services/web-apps/fediwall.nix
@@ -1678,6 +1678,7 @@
   ./services/web-apps/lanraragi.nix
   ./services/web-apps/lasuite-docs.nix
   ./services/web-apps/lasuite-meet.nix
+  ./services/web-apps/lauti.nix
   ./services/web-apps/lemmy.nix
   ./services/web-apps/librechat.nix
   ./services/web-apps/librespeed.nix
