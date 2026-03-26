@@ -34,6 +34,12 @@ python3Packages.buildPythonApplication rec {
     ]
     ++ optional-dependencies.apprise;
 
+  patches = [
+    # Tests write to hardcoded /tmp/ paths; use pytest's tmp_path fixture instead
+    # to avoid PermissionError when stale files are owned by a different build user.
+    ./fix-hardcoded-tmp-in-tests.patch
+  ];
+
   # - test_borgmatic_version_matches_news_version
   # The file NEWS not available on the pypi source, and this test is useless
   disabledTests = [
