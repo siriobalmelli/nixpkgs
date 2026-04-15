@@ -34,10 +34,23 @@ python3Packages.buildPythonApplication rec {
     ]
     ++ optional-dependencies.apprise;
 
+  patches = [
+    # Tests write to hardcoded /tmp/ paths; use pytest's tmp_path fixture instead
+    # to avoid PermissionError when stale files are owned by a different build user.
+    # TODO: revert when upstream PR is merged:
+    # https://projects.torsion.org/borgmatic-collective/borgmatic/pulls/1296
+    ./fix-hardcoded-tmp-in-tests.patch
+  ];
+
   # - test_borgmatic_version_matches_news_version
-  # The file NEWS not available on the pypi source, and this test is useless
+  #   NEWS file not available on the pypi source
+  # - test_log_outputs_includes_error_output_in_exception
+  #   TOCTOU race in log_outputs(): process.poll() returns None in
+  #   raise_for_process_errors but non-None in the while-loop exit check,
+  #   so the error is never raised. Timing-dependent; fails on x86_64-darwin.
   disabledTests = [
     "test_borgmatic_version_matches_news_version"
+    "test_log_outputs_includes_error_output_in_exception"
   ];
 
   nativeBuildInputs = [ installShellFiles ];
