@@ -75,7 +75,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     # NOTE: Required else we get errors that our fixed-output derivation references store paths
     dontFixup = true;
 
-    outputHash = "sha256-dbpqhVcjWr+puZhV0x7pR38iMjjZdbrJydKJ/qJfDeY=";
+    outputHash = "sha256-Zfgx97up2qPnDSGYFTIjdEioLHp4YCZSIgMGR5Zi6k8=";
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
   };
