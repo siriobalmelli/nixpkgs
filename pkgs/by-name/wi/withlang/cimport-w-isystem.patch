@@ -1,0 +1,55 @@
+diff --git a/src/CImport.w b/src/CImport.w
+--- a/src/CImport.w
++++ b/src/CImport.w
+@@ -2139,6 +2139,11 @@ fn ci_try_translate_object_macro_probe(macro_source: str, name: str) -> str:
+     ci_record_field_caches_clear()
+     result
+
++fn ci_record_untranslated_function_macro(name: str, is_system: i32):
++    if is_system != 0:
++        return
++    ci_record_untranslated_macro_always(name)
++
+ fn ci_record_untranslated_object_macro(name: str, is_system: i32):
+     if is_system != 0:
+         ci_record_untranslated_macro(name)
+@@ -2193,11 +2198,11 @@ fn ci_translate_macros(session: i64, type_session: i64, extern_vars: str, macro_
+                             is_variadic_macro = true
+                         vpi = vpi + 1
+                     if is_variadic_macro:
+-                        ci_record_untranslated_macro(name)
++                        ci_record_untranslated_function_macro(name, macro_is_system)
+                         continue
+                     // Detect cleanup attribute macros
+                     if ci_str_contains(value, "__attribute__((cleanup"):
+-                        ci_record_untranslated_macro(name)
++                        ci_record_untranslated_function_macro(name, macro_is_system)
+                         continue
+                     // Empty function-like macro: #define FOO(x) -> void function
+                     if ci_trim(value).len() == 0:
+@@ -2269,7 +2274,7 @@ fn ci_translate_macros(session: i64, type_session: i64, extern_vars: str, macro_
+                                 if not ci_migrate_shared_decl_add("fn", safe_name, r):
+                                     output = output ++ r ++ "\n"
+                                 continue
+-                        ci_record_untranslated_macro(name)
++                        ci_record_untranslated_function_macro(name, macro_is_system)
+                         continue
+                     // Token paste (##) translation
+                     if translated.len() == 0 and ci_str_contains(work_value, "##"):
+@@ -2289,7 +2294,7 @@ fn ci_translate_macros(session: i64, type_session: i64, extern_vars: str, macro_
+                         if not ci_migrate_shared_decl_add("fn", safe_name, r):
+                             output = output ++ r ++ "\n"
+                     else:
+-                        ci_record_untranslated_macro(name)
++                        ci_record_untranslated_function_macro(name, macro_is_system)
+             continue
+
+         // Skip empty macros (flag defines) and track as blank
+@@ -13367,6 +13372,7 @@ fn ci_is_system_path(loc: str) -> bool:
+     if ci_str_contains(loc, "/usr/include/"): return true
+     if ci_str_contains(loc, "/SDKs/"): return true
+     if ci_str_contains(loc, "/clang/"): return true
++    if ci_str_contains(loc, "@libcIncludeDir@/"): return true
+     false
+
+ let CI_LIBC_KIND_FN: i32 = 1

@@ -1,0 +1,15 @@
+diff --git a/build/compiler.w b/build/compiler.w
+--- a/build/compiler.w
++++ b/build/compiler.w
+@@ -412,9 +412,9 @@ fn run_compiler_metadata_action(ctx: ActionCtx) -> i32:
+         if sdk_path.len() > 0:
+             rsp = rsp ++ "-isysroot\n" ++ sdk_path ++ "\n"
+             ld_rsp = ld_rsp ++ "-syslibroot\n" ++ sdk_path ++ "\n"
+-        rsp = rsp ++ "-lm\n"
++        rsp = rsp ++ "@linkRSPinjectionDarwin@\n"
+         rsp = rsp ++ "-lc++\n"
+-        ld_rsp = ld_rsp ++ "-lm\n"
++        ld_rsp = ld_rsp ++ "@linkRSPinjectionDarwin@\n"
+         ld_rsp = ld_rsp ++ "-lc++\n"
+     else if os() == "Linux":
+         rsp = rsp ++ "-lpthread\n"

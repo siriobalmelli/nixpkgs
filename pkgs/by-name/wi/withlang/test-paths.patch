@@ -1,0 +1,82 @@
+diff --git a/build/pcre2.w b/build/pcre2.w
+--- a/build/pcre2.w
++++ b/build/pcre2.w
+@@ -675,7 +675,7 @@ fn pcre2_run_smoke(ctx: ActionCtx, root: str, output_dir: str, pcre2test_bin: st
+     let run_stdout = pcre2_abs(root, pcre2_join(output_dir, "run.stdout"))
+     let run_stderr = pcre2_abs(root, pcre2_join(output_dir, "run.stderr"))
+     var run_args: Vec[str] = Vec.new()
+-    run_args |> push("/bin/bash")
++    run_args |> push("@bash@/bin/bash")
+     run_args |> push(pcre2_abs(root, run_test_path))
+     run_args |> push("-8")
+     run_args |> push("0-5")
+@@ -766,7 +766,7 @@ pub fn run_cli_selfhost_pcre2_core_action(ctx: ActionCtx) -> i32:
+     let stdout_path = pcre2_abs(root, pcre2_join(run_dir, "stdout.txt"))
+     let stderr_path = pcre2_abs(root, pcre2_join(run_dir, "stderr.txt"))
+     var run_args: Vec[str] = Vec.new()
+-    run_args |> push("/bin/bash")
++    run_args |> push("@bash@/bin/bash")
+     run_args |> push(pcre2_abs(root, run_test_path))
+     run_args |> push("-8")
+     run_args |> push("0-29")
+diff --git a/build/selfhost.w b/build/selfhost.w
+--- a/build/selfhost.w
++++ b/build/selfhost.w
+@@ -2668,7 +2668,7 @@ fn bs_check_build_w_workspace_bad_linker(ctx: ActionCtx, compiler_path: str, cas
+         "        match envelope.message:\n" ++
+         "            CompilerMessage.PreLink(command) =>\n" ++
+         "                var replacement = command\n" ++
+-        "                replacement.linker = \"/bin/false\"\n" ++
++        "                replacement.linker = \"@coreutils@/bin/false\"\n" ++
+         "                ws.set_link_command(replacement)\n" ++
+         "            CompilerMessage.Complete(_) => ctx.diagnostics().error(\"bad linker prelink missing\")\n" ++
+         "            _ => false\n" ++
+@@ -3623,7 +3623,7 @@ fn bs_check_build_w_action_target(ctx: ActionCtx, compiler_path: str, case_dir:
+         "    assert(ctx.fs().write_text(ctx.output(), \"action:\" ++ ctx.args().get(0)) == 0)\n" ++
+         "    assert(ctx.fs().write_text(ctx.outputs().get(1), \"extra:\" ++ ctx.args().get(0)) == 0)\n" ++
+         "    var env_args: Vec[str] = Vec.new()\n" ++
+-        "    env_args |> push(\"/usr/bin/env\")\n" ++
++        "    env_args |> push(\"@coreutils@/bin/env\")\n" ++
+         "    var child_env = process_env()\n" ++
+         "    child_env = child_env.set(\"WITH_ACTION_TEST_ENV\", \"present\")\n" ++
+         "    let env_result = ctx.process_runner().run_capture_with_env(env_args, \"out/action/env.txt\", \"out/action/env.err\", 120000, child_env)\n" ++
+@@ -3636,7 +3636,7 @@ fn bs_check_build_w_action_target(ctx: ActionCtx, compiler_path: str, case_dir:
+         "    assert(not inherited_env_result.stdout.contains(\"WITH_TOOL_CAPABILITY_TOKEN=with-\"))\n" ++
+         "    assert(not inherited_env_result.stdout.contains(\"WITH_BUILD_ACTION_NAME=generate\"))\n" ++
+         "    var direct_args: Vec[str] = Vec.new()\n" ++
+-        "    direct_args |> push(\"/bin/echo\")\n" ++
++        "    direct_args |> push(\"@coreutils@/bin/echo\")\n" ++
+         "    direct_args |> push(\"streamed-process-run\")\n" ++
+         "    assert(ctx.process_runner().run(direct_args) == 0)\n" ++
+         "    0\n\n" ++
+diff --git a/test/behavior/behav_action_capability_process.w b/test/behavior/behav_action_capability_process.w
+--- a/test/behavior/behav_action_capability_process.w
++++ b/test/behavior/behav_action_capability_process.w
+@@ -7,7 +7,7 @@ fn main:
+     var build_text = "use std.build\n\n"
+     build_text = build_text ++ "fn generate(ctx: ActionCtx) -> i32:\n"
+     build_text = build_text ++ "    var args: Vec[str] = Vec.new()\n"
+-    build_text = build_text ++ "    args |> push(\"/bin/echo\")\n"
++    build_text = build_text ++ "    args |> push(\"@coreutils@/bin/echo\")\n"
+     build_text = build_text ++ "    args |> push(\"process-ok\")\n"
+     build_text = build_text ++ "    let result = ctx.process_runner().run_capture(args, \"out/process.stdout\", \"out/process.stderr\", 120000)\n"
+     build_text = build_text ++ "    assert(result.rc == 0)\n"
+diff --git a/test/behavior/behav_std_process_command.w b/test/behavior/behav_std_process_command.w
+--- a/test/behavior/behav_std_process_command.w
++++ b/test/behavior/behav_std_process_command.w
+@@ -3,12 +3,12 @@
+ use std.process
+
+ fn main:
+-    assert(command("/usr/bin/true").run() == 0)
++    assert(command("@coreutils@/bin/true").run() == 0)
+
+-    let eq = command("/bin/test").arg("with").arg("=").arg("with")
++    let eq = command("@coreutils@/bin/test").arg("with").arg("=").arg("with")
+     assert(eq.status() == 0)
+
+-    let ne = command("/bin/test").arg("with").arg("=").arg("shell")
++    let ne = command("@coreutils@/bin/test").arg("with").arg("=").arg("shell")
+     assert(ne.status() != 0)
+
+     print("ok")

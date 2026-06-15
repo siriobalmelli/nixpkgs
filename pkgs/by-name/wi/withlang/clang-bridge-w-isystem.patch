@@ -1,0 +1,65 @@
+diff --git a/rt/clang_bridge.w b/rt/clang_bridge.w
+--- a/rt/clang_bridge.w
++++ b/rt/clang_bridge.w
+@@ -641,6 +641,8 @@ unsafe fn append_cc_common_args(argv: str) -> str:
+     if sysroot as i64 != 0:
+         out = append_argv_arg(out, "-isysroot")
+         out = append_argv_arg(out, make_str(sysroot))
++    out = append_argv_arg(out, "-isystem")
++    out = append_argv_arg(out, "@libcIncludeDir@")
+     var ip: i32 = 0
+     while ip < g_cimport_include_count:
+         out = append_argv_arg(out, "-I")
+@@ -1186,6 +1188,10 @@ pub unsafe fn cimport_parse(header_code: str) -> i64:
+         nargs = nargs + 1
+         args[nargs as i64] = resdir
+         nargs = nargs + 1
++    args[nargs as i64] = "-isystem\0" as *const u8
++    nargs = nargs + 1
++    args[nargs as i64] = "@libcIncludeDir@\0" as *const u8
++    nargs = nargs + 1
+     var ip: i32 = 0
+     while ip < g_cimport_include_count and nargs < 62:
+         args[nargs as i64] = "-I\0" as *const u8
+@@ -1908,6 +1914,8 @@ unsafe fn cimport_location_path_is_system(path: *const u8) -> i32:
+         return 1
+     if c_strstr(path, "/clang/\0" as *const u8) as i64 != 0:
+         return 1
++    if c_strstr(path, "@libcIncludeDir@/\0" as *const u8) as i64 != 0:
++        return 1
+     0
+
+ unsafe fn macro_location_from_cursor(s: *mut CImportSession, cursor: CXCursor) -> str:
+@@ -2190,6 +2198,10 @@ unsafe fn cimport_collect_macros_from_libclang(ms: *mut MacroSession, header_cod
+         nargs = nargs + 1
+         args[nargs as i64] = resdir
+         nargs = nargs + 1
++    args[nargs as i64] = "-isystem\0" as *const u8
++    nargs = nargs + 1
++    args[nargs as i64] = "@libcIncludeDir@\0" as *const u8
++    nargs = nargs + 1
+     var ip: i32 = 0
+     while ip < g_cimport_include_count and nargs < 62:
+         args[nargs as i64] = "-I\0" as *const u8
+@@ -2468,6 +2480,10 @@ pub unsafe fn cimport_collect_object_macro_types(header_code: str, macro_names:
+         nargs = nargs + 1
+         args[nargs as i64] = resdir
+         nargs = nargs + 1
++    args[nargs as i64] = "-isystem\0" as *const u8
++    nargs = nargs + 1
++    args[nargs as i64] = "@libcIncludeDir@\0" as *const u8
++    nargs = nargs + 1
+     var ip: i32 = 0
+     while ip < g_cimport_include_count and nargs < 62:
+         args[nargs as i64] = "-I\0" as *const u8
+@@ -2556,6 +2572,10 @@ pub unsafe fn cimport_parse_macro_probe(header_code: str, macro_name: str) -> i6
+         nargs = nargs + 1
+         args[nargs as i64] = resdir
+         nargs = nargs + 1
++    args[nargs as i64] = "-isystem\0" as *const u8
++    nargs = nargs + 1
++    args[nargs as i64] = "@libcIncludeDir@\0" as *const u8
++    nargs = nargs + 1
+     var ip: i32 = 0
+     while ip < g_cimport_include_count and nargs < 62:
+         args[nargs as i64] = "-I\0" as *const u8

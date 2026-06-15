@@ -1,0 +1,12 @@
+diff --git a/build.w b/build.w
+--- a/build.w
++++ b/build.w
+@@ -735,7 +735,7 @@ pub fn build(ctx: BuildCtx) -> Build:
+     tests = tests.dep("cli-selfhost-one-liner-tests")
+     tests = tests.dep("cli-selfhost-object-symbol-tests")
+     tests = tests.dep("cli-selfhost-build-w-tests")
+-    tests = tests.dep("cli-selfhost-project-tests")
++    // skipped in nixpkgs: fetches Conan Center packages
+     tests = tests.dep("cli-selfhost-edge-tests")
+     tests = tests.dep("cli-selfhost-parallel-tests")
+     tests = tests.dep("c-migrator-tests")

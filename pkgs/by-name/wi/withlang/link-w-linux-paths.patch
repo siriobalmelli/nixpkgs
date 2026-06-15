@@ -1,0 +1,54 @@
+diff --git a/src/compiler/Link.w b/src/compiler/Link.w
+--- a/src/compiler/Link.w
++++ b/src/compiler/Link.w
+@@ -145,34 +145,13 @@ fn link_stage_file_exists(path: str) -> bool:
+     runtime_read_file(path).len() > 0
+
+ fn link_stage_linux_dynamic_linker() -> str:
+-    if link_stage_file_exists("/lib64/ld-linux-x86-64.so.2"):
+-        return "/lib64/ld-linux-x86-64.so.2"
+-    if link_stage_file_exists("/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"):
+-        return "/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2"
+-    ""
++    "@dynamicLinker@"
+
+ fn link_stage_linux_crt_object(name: str) -> str:
+-    let usr = "/usr/lib/x86_64-linux-gnu/" ++ name
+-    if link_stage_file_exists(usr):
+-        return usr
+-    let lib = "/lib/x86_64-linux-gnu/" ++ name
+-    if link_stage_file_exists(lib):
+-        return lib
+-    ""
++    "@libcLibDir@/" ++ name
+
+ fn link_stage_linux_gcc_dir() -> str:
+-    let candidates: Vec[str] = Vec.new()
+-    candidates.push("/usr/lib/gcc/x86_64-linux-gnu/14")
+-    candidates.push("/usr/lib/gcc/x86_64-linux-gnu/13")
+-    candidates.push("/usr/lib/gcc/x86_64-linux-gnu/12")
+-    candidates.push("/usr/lib/gcc/x86_64-linux-gnu/11")
+-    candidates.push("/usr/lib/gcc/x86_64-linux-gnu/10")
+-    candidates.push("/usr/lib/gcc/x86_64-linux-gnu/9")
+-    for i in 0..candidates.len() as i32:
+-        let dir = candidates.get(i as i64)
+-        if link_stage_file_exists(dir ++ "/crtbegin.o"):
+-            return dir
+-    ""
++    "@gccDir@"
+
+ fn link_stage_make_darwin_llvm_link_command(llvm_ld: str, obj_path: str, bin_path: str, extras: Vec[str], link_libs: Vec[str], link_args: Vec[str]) -> LinkStageCommand:
+     let args: Vec[str] = Vec.new()
+@@ -245,10 +224,8 @@ fn link_stage_make_linux_llvm_link_command(llvm_ld: str, obj_path: str, bin_path
+         inputs.push(extra)
+
+     args.push("-L" ++ gcc_dir)
+-    args.push("-L/usr/lib/x86_64-linux-gnu")
+-    args.push("-L/lib/x86_64-linux-gnu")
+-    args.push("-L/usr/lib")
+-    args.push("-L/lib")
++    args.push("-L@libcLibDir@")
++    args.push("-L@ccLibDir@")
+     for i in 0..link_libs.len() as i32:
+         args.push("-l" ++ link_libs.get(i as i64))
+     for i in 0..link_args.len() as i32:
