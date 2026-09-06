@@ -69,6 +69,7 @@
   # tests
   imageio,
   pytest-rerunfailures,
+  pytest-xdist,
   pytestCheckHook,
   pyyaml,
   scipy,
@@ -76,15 +77,18 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "torchrl";
-  version = "0.13.3";
+  version = "0.14.0";
   pyproject = true;
   __structuredAttrs = true;
 
+  # No tags have been made for 0.14.0
+  # https://github.com/pytorch/rl/pull/4108#issuecomment-5558175190
   src = fetchFromGitHub {
     owner = "pytorch";
     repo = "rl";
-    tag = "v${finalAttrs.version}";
-    hash = "sha256-GdiGZZlx8olRMzl4CJD11S1+q0+pOeCD2wrDPcji5p0=";
+    # tag = "v${finalAttrs.version}";
+    rev = "6e18e35b2c68be1a56afebfb0676d217925114cd";
+    hash = "sha256-a1Ehbr6N5w9sVH1ygFhlPEm8J51zIrXB37N18OQqiDM=";
   };
 
   postPatch = ''
@@ -190,11 +194,18 @@ buildPythonPackage (finalAttrs: {
     export XDG_RUNTIME_DIR=$(mktemp -d)
   '';
 
+  pytestFlags = [
+    # Tests memory consumption grows significantly with the number of parallel processes
+    # -> Limit the number of parallel jobs to prevent OOMing
+    "--maxprocesses=16"
+  ];
+
   nativeCheckInputs = [
-    h5py
     gymnasium
+    h5py
     imageio
     pytest-rerunfailures
+    pytest-xdist
     pytestCheckHook
     pyyaml
     scipy
@@ -310,7 +321,8 @@ buildPythonPackage (finalAttrs: {
   meta = {
     description = "Modular, primitive-first, python-first PyTorch library for Reinforcement Learning";
     homepage = "https://github.com/pytorch/rl";
-    changelog = "https://github.com/pytorch/rl/releases/tag/${finalAttrs.src.tag}";
+    # TODO: uncomment when src is using a git tag again
+    # changelog = "https://github.com/pytorch/rl/releases/tag/${finalAttrs.src.tag}";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ GaetanLepage ];
   };

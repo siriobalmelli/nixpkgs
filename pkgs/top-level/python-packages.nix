@@ -4318,8 +4318,6 @@ self: super: with self; {
 
   detect-secrets = callPackage ../development/python-modules/detect-secrets { };
 
-  detectron2 = callPackage ../development/python-modules/detectron2 { };
-
   developer-disk-image = callPackage ../development/python-modules/developer-disk-image { };
 
   devgoldyutils = callPackage ../development/python-modules/devgoldyutils { };
@@ -8691,6 +8689,10 @@ self: super: with self; {
   jax-cuda12-pjrt = callPackage ../development/python-modules/jax-cuda12-pjrt { };
 
   jax-cuda12-plugin = callPackage ../development/python-modules/jax-cuda12-plugin { };
+
+  jax-cuda13-pjrt = callPackage ../development/python-modules/jax-cuda13-pjrt { };
+
+  jax-cuda13-plugin = callPackage ../development/python-modules/jax-cuda13-plugin { };
 
   jax-jumpy = callPackage ../development/python-modules/jax-jumpy { };
 

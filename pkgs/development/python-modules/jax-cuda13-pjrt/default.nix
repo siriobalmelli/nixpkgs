@@ -17,11 +17,11 @@ let
   platforms = {
     x86_64-linux = {
       name = "manylinux_2_27_x86_64";
-      hash = "sha256-/dnXJAjhf3ojvfombpyQE2YgpyTfWEYp81BnIuKy9DQ=";
+      hash = "sha256-TKiiYaVIWtuFL96VTkuRRfVCwNivRwSojgX67jVBryE=";
     };
     aarch64-linux = {
       name = "manylinux_2_27_aarch64";
-      hash = "sha256-QAIdRVvZRSJwTjIdMOitomp8Cm75XEp1QqvaATiinRw=";
+      hash = "sha256-gZx0TjXd8Cckv0WWpijSvjhzaah82mBXUTfuQ37NeXo=";
     };
   };
   currentPlatform = platforms.${stdenv.hostPlatform.system};
@@ -44,13 +44,13 @@ let
 
 in
 buildPythonPackage (finalAttrs: {
-  pname = "jax-cuda12-pjrt";
+  pname = "jax-cuda13-pjrt";
   inherit version;
   pyproject = false;
   __structuredAttrs = true;
 
   src = fetchPypi {
-    pname = "jax_cuda12_pjrt";
+    pname = "jax_cuda13_pjrt";
     inherit version;
     format = "wheel";
     python = "py3";
@@ -65,13 +65,13 @@ buildPythonPackage (finalAttrs: {
     wheelUnpackHook
   ];
 
-  # jax-cuda12-pjrt looks for ptxas, nvlink and nvvm at runtime, eg when running `jax.random.PRNGKey(0)`.
+  # jax-cuda13-pjrt looks for ptxas, nvlink and nvvm at runtime, eg when running `jax.random.PRNGKey(0)`.
   # Linking into $out is the least bad solution. See
   # * https://github.com/NixOS/nixpkgs/pull/164176#discussion_r828801621
   # * https://github.com/NixOS/nixpkgs/pull/288829#discussion_r1493852211
   # for more info.
   postInstall = ''
-    export OUTPATH="$out/${python.sitePackages}/jax_plugins/nvidia/cuda_nvcc"
+    export OUTPATH="$out/${python.sitePackages}/jax_plugins/nvidia/cu13"
     export BINPATH="$OUTPATH/bin"
     mkdir -p $BINPATH
     ln -s ${lib.getExe' cudaPackages.cuda_nvcc "ptxas"} $BINPATH/ptxas
@@ -79,14 +79,14 @@ buildPythonPackage (finalAttrs: {
     ln -s ${cudaPackages.cuda_nvcc}/nvvm $OUTPATH/nvvm
   '';
 
-  # jax-cuda12-pjrt contains shared libraries that open other shared libraries via dlopen
+  # jax-cuda13-pjrt contains shared libraries that open other shared libraries via dlopen
   # and these implicit dependencies are not recognized by ldd or
   # autoPatchelfHook. That means we need to sneak them into rpath. This step
   # must be done after autoPatchelfHook and the automatic stripping of
   # artifacts. autoPatchelfHook runs in postFixup and auto-stripping runs in the
   # patchPhase.
   preInstallCheck = ''
-    patchelf --add-rpath "${cudaLibPath}" $out/${python.sitePackages}/jax_plugins/xla_cuda12/xla_cuda_plugin.so
+    patchelf --add-rpath "${cudaLibPath}" $out/${python.sitePackages}/jax_plugins/xla_cuda13/xla_cuda_plugin.so
   '';
 
   # FIXME: there are no tests, but we need to run preInstallCheck above
@@ -104,17 +104,14 @@ buildPythonPackage (finalAttrs: {
     sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
     license = lib.licenses.asl20;
     teams = [ lib.teams.cuda ];
-    maintainers = with lib.maintainers; [
-      GaetanLepage
-      natsukium
-    ];
+    maintainers = with lib.maintainers; [ GaetanLepage ];
     platforms = lib.attrNames platforms;
     problems =
-      lib.optionalAttrs (cudaPackages.cudaMajorVersion != "12") {
+      lib.optionalAttrs (cudaPackages.cudaMajorVersion != "13") {
         unsupported-cuda-version = {
           message = ''
             Incompatible cudaPackages version.
-              - Expected: 12
+              - Expected: 13
               - Got: ${cudaPackages.cudaMajorVersion}
           '';
           kind = "broken";
