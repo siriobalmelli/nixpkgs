@@ -101,5 +101,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
     license = lib.licenses.gpl3Only;
     maintainers = with lib.maintainers; [ idkdontaskm3 ];
     mainProgram = "mediaharbor";
+    platforms = [
+      "x86_64-linux"
+    ];
   };
 })
