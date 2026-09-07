@@ -105,6 +105,7 @@ buildPythonPackage.override { stdenv = cudaPackages.backendStdenv; } (finalAttrs
     # `cudaPackages.nccl` is BSD3 but the bindings are licensed under
     # Apache License 2.0
     license = lib.licenses.bsd3;
+    teams = [ lib.teams.cuda ];
     maintainers = with lib.maintainers; [
       GaetanLepage
       thefossguy
