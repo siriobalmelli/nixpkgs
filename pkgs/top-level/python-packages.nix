@@ -17765,7 +17765,7 @@ self: super: with self; {
 
   ray = callPackage ../development/python-modules/ray { };
 
-  raylib-python-cffi = callPackage ../development/python-modules/raylib-python-cffi { };
+  raylib = callPackage ../development/python-modules/raylib { inherit (pkgs) raylib; };
 
   razdel = callPackage ../development/python-modules/razdel { };
 
