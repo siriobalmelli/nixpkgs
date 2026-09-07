@@ -187,6 +187,7 @@ stdenv.mkDerivation (finalAttrs: {
       lib.licenses.cc-by-30
     ];
     maintainers = with lib.maintainers; [
+      johnrichardrinehart
       veprbl
       wegank
     ];
