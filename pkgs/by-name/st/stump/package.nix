@@ -118,5 +118,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     license = lib.licenses.mit;
     platforms = [ "x86_64-linux" ];
     mainProgram = "stump_server";
+    maintainers = with lib.maintainers; [ jvanbruegge ];
   };
 })
