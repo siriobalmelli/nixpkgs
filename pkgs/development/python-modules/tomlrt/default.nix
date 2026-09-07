@@ -28,6 +28,7 @@ buildPythonPackage (finalAttrs: {
   meta = {
     description = "A format-preserving TOML reader and writer for Python";
     homepage = "https://github.com/dimbleby/tomlrt";
+    changelog = "https://github.com/dimbleby/tomlrt/blob/v${finalAttrs.version}/CHANGELOG.md";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ aaronjheng ];
   };
