@@ -520,6 +520,10 @@ let
           #                           #
           #############################
         ''
+        + lib.optionalString isDarwin ''
+          mkdir -p "$out/bin"
+          ln -sf "$out/${finalBinaryPath}" "$out/bin/${launcherName}"
+        ''
         + lib.optionalString (!isDarwin) ''
           if [ -e "${browser}/share/icons" ]; then
               mkdir -p "$out/share"
